@@ -3,152 +3,153 @@
 Aplikasi donasi mikro terdesentralisasi (Flutter + Polygon Amoy Testnet)
 dengan Proof-of-Impact via Kamera, GPS, dan IPFS.
 
-## Status: Stage 2.3 — Fungsi Donasi On-Chain
+---
 
-**Baru ditambahkan:**
-- `DonationRepository` (domain) + `DonationRepositoryImpl` (data) —
-  sign & kirim transaksi `donate(campaignId)` ke smart contract
-- `DonationNotifier` — state idle/loading/sukses(txHash)/error
-- `DonateBottomSheet` — UI input nominal, keyboard-safe, dialog sukses
-  dengan hash transaksi yang bisa disalin
-- `walletServiceProvider`/`web3ServiceProvider` dipindah ke
-  `core/providers/` supaya bisa dipakai bersama fitur `wallet` & `donation`
-- `blockchain/DEPLOY_GUIDE.md` Langkah 7 — cara membuat campaign pertama
-  di contract via Remix, supaya donasi punya target yang valid
+## 1. Deskripsi Masalah
 
-**Status Vertical Slice (requirement checkpoint UTS):** kode untuk alur
-"input donasi → transaksi tercatat di blockchain" SUDAH LENGKAP.
-Yang tersisa murni tugas konfigurasi eksternal kamu (deploy contract +
-Alchemy key), BUKAN tugas coding lagi, untuk fitur donasi dasar ini.
+Penggalangan dana daring (donasi mikro) melalui platform konvensional
+(mis. GoFundMe, KitaBisa, dan sejenisnya) menghadapi tiga masalah utama:
 
-### Aksi Kamu Sekarang
+1. **Minim transparansi penyaluran dana.** Donatur tidak punya cara
+   independen untuk memverifikasi bahwa dana yang mereka kirim benar-benar
+   sampai dan dipakai sesuai tujuan kampanye. Semua catatan transaksi
+   berada di database privat milik platform.
+2. **Ketergantungan pada perantara terpusat.** Platform konvensional
+   mengambil potongan biaya administrasi, dan seluruh proses (verifikasi,
+   pencairan dana) bergantung penuh pada kebijakan internal satu entitas
+   — donatur dan organizer sama-sama tidak punya kendali atas prosesnya.
+3. **Tidak ada bukti fisik penggunaan dana yang terstruktur.** Setelah
+   dana cair, sangat jarang platform menyediakan mekanisme baku untuk
+   organizer membuktikan dana benar-benar dipakai (foto lokasi, waktu,
+   dan konteks penggunaan) secara mudah dan terverifikasi.
 
-1. Test di HP fisik: masuk Detail Kampanye → Donasi Sekarang → isi
-   nominal → kirim → pastikan muncul pesan "Konfigurasi Blockchain
-   Belum Lengkap" (bukan crash) — SAMA seperti balance check di 2.2
-2. Commit:
-   ```bash
-   git commit -am "feat: implement on-chain donation flow via web3dart sendTransaction"
-   ```
-3. Selesaikan `blockchain/DEPLOY_GUIDE.md` (termasuk Langkah 7 yang baru)
-4. Setelah kredensial & campaign pertama siap, test ulang alur donasi
-   end-to-end dan verifikasi hash transaksi muncul di PolygonScan Amoy —
-   ini yang akan kamu tunjukkan saat checkpoint UTS
+**Decentradonate** menjawab ketiga masalah ini dengan mencatat setiap
+donasi langsung di blockchain publik (transparan & tidak bisa diubah),
+serta mewajibkan organizer mengunggah **Proof-of-Impact** (foto + lokasi
+GPS, disimpan permanen di IPFS) sebagai bukti penggunaan dana.
 
-## Status Sebelumnya: Stage 2.2 — Integrasi Web3 (Baca Saldo)
+---
 
-**Baru ditambahkan:**
-- `Web3Service` — singleton koneksi `Web3Client` ke Alchemy RPC
-- `WalletRepository.getBalance()` — baca saldo MATIC sebuah address
-- `walletBalanceProvider` — auto-fetch saldo saat tab Wallet dibuka + tombol Refresh
-- Deteksi konfigurasi belum lengkap → pesan error yang JELAS (bukan crash)
-  mengarahkan ke `blockchain/DEPLOY_GUIDE.md`
+## 2. Profil Target Pengguna
 
-**PENTING:** kredensial (RPC URL, contract address, ABI) MASIH placeholder
-sesuai konfirmasimu — kode ini didesain supaya tetap bisa di-test SEKARANG
-tanpa kredensial (akan menampilkan Error state "Konfigurasi Belum
-Lengkap" yang informatif), dan begitu kredensial nyata diisi, kode yang
-SAMA langsung berfungsi tanpa perlu diubah.
+Karena aplikasi ini dibangun di atas **Polygon Amoy Testnet** untuk
+keperluan tugas akhir mata kuliah, target pengguna di bawah ini adalah
+profil yang disasar **secara konsep produk** — bukan pengguna produksi
+sungguhan selama masa pengembangan 12 minggu.
 
-### Aksi Kamu Sekarang
+| Persona | Kebutuhan Utama |
+|---|---|
+| **Donatur melek teknologi** — individu berusia 20–40 tahun yang terbiasa dengan aplikasi digital dan skeptis terhadap transparansi platform donasi konvensional | Ingin memastikan donasinya sampai dan dipakai sesuai tujuan; nyaman memakai wallet kripto sederhana |
+| **Organizer/penggalang dana skala kecil–menengah** — individu atau komunitas (mis. relawan bencana lokal, kelompok swadaya masyarakat) yang butuh dana cepat tanpa proses administrasi platform besar | Butuh kanal penggalangan dana yang mudah dibuat, minim birokrasi, dan bisa membuktikan penggunaan dana dengan gampang lewat kamera HP |
+| **Peninjau/auditor independen** (termasuk dosen penguji dalam konteks tugas ini) | Ingin memverifikasi transaksi secara independen lewat block explorer publik, tanpa perlu akses khusus ke sistem manapun |
 
-1. Test di HP fisik: buka tab Wallet, pastikan muncul pesan
-   "Konfigurasi Blockchain Belum Lengkap" (bukan crash/freeze)
-2. Commit:
-   ```bash
-   git commit -am "feat: integrate web3dart for balance checking with config-aware error handling"
-   ```
-3. Lanjutkan proses deploy contract & setup Alchemy sesuai
-   `blockchain/DEPLOY_GUIDE.md` kapan pun kamu sudah punya akses/waktu
-4. Setelah kredensial terisi, buka lagi tab Wallet dan tekan Refresh —
-   seharusnya saldo asli (0 MATIC kalau wallet baru) langsung muncul
-   TANPA perlu saya ubah kode apa pun
+---
 
-## Status Sebelumnya: Stage 2.1 — Wallet (Minggu 4, bagian dari Build Core Experience)
+## 3. Manfaat Aplikasi
 
-**Baru ditambahkan dari Stage 1:**
-- Wallet generate baru (12 kata BIP-39) + layar backup seed phrase wajib konfirmasi
-- Import wallet dari mnemonic yang sudah ada
-- Penyimpanan mnemonic terenkripsi via `flutter_secure_storage`
-- State wallet dikelola Riverpod `AsyncNotifier` (loading/error/data otomatis)
-- Smart contract Solidity (`blockchain/Decentradonate.sol`) + panduan deploy
-  gratis ke Polygon Amoy Testnet (`blockchain/DEPLOY_GUIDE.md`)
+- **Transparansi permanen** — setiap donasi tercatat sebagai transaksi
+  di Polygon (dapat diverifikasi siapa pun lewat PolygonScan), tidak
+  bisa diubah atau disembunyikan setelah tercatat.
+- **Minim perantara** — dana dari donatur diteruskan langsung ke wallet
+  organizer melalui smart contract, tanpa proses pencairan manual yang
+  bergantung pada kebijakan internal platform.
+- **Akuntabilitas terstruktur** — kewajiban unggah Proof-of-Impact
+  (foto + GPS) memberi donatur bukti visual dan lokasional atas
+  penggunaan dana, tersimpan permanen di IPFS (tidak bisa dihapus
+  sepihak oleh siapa pun, termasuk pembuat aplikasi).
+- **Kepemilikan penuh oleh pengguna (self-custody)** — wallet dibuat
+  dan disimpan di perangkat pengguna sendiri, bukan dikelola akun
+  terpusat milik platform.
+- **Biaya rendah** — tanpa potongan admin platform; biaya yang ada
+  hanya gas fee jaringan blockchain (di testnet, ini gratis).
 
-**Belum ada (menyusul Langkah 2.2 & 2.3):**
-- Baca saldo wallet dari blockchain (perlu web3dart + Alchemy)
-- Fungsi donasi nyata (transfer MATIC ke smart contract)
-- Sinkronisasi daftar campaign dari on-chain data
+---
 
-### PENTING — Aksi Kamu Sebelum Lanjut ke Langkah 2.2
+## 4. Daftar Fitur Inti (Realistis Diselesaikan dalam 12 Pertemuan)
 
-1. Ikuti `blockchain/DEPLOY_GUIDE.md` untuk deploy smart contract ke
-   Polygon Amoy Testnet (gratis, ±15-20 menit)
-2. Test fitur wallet di HP fisik: buat wallet baru → catat seed phrase →
-   hapus wallet → import lagi pakai seed phrase yang sama → pastikan
-   address yang muncul SAMA seperti sebelumnya (ini membuktikan derivasi
-   deterministik bekerja benar)
-3. Commit progress ini sebelum lanjut
+Fitur ini dipetakan langsung ke 4 fase silabus (Define → Build Core →
+Harden → Release):
 
-```bash
-git add .
-git commit -m "feat: implement wallet generation and import with secure storage"
-```
+1. **Manajemen Wallet** — generate wallet baru (mnemonic 12 kata) atau
+   import wallet yang sudah ada, disimpan terenkripsi di perangkat.
+2. **Daftar & Detail Kampanye** — menampilkan kampanye donasi beserta
+   progres pengumpulan dana, dibaca langsung dari smart contract.
+3. **Donasi On-Chain** — transfer MATIC (testnet) ke kampanye pilihan
+   lewat smart contract, dengan status transaksi (pending/sukses/gagal)
+   ditampilkan jelas ke pengguna.
+4. **Proof-of-Impact** — organizer mengambil foto + menandai lokasi GPS
+   sebagai bukti penggunaan dana, diunggah ke IPFS.
+5. **Riwayat Transaksi** — daftar donasi yang pernah dilakukan/diterima,
+   diambil dari event on-chain.
+6. **Loading, Empty, dan Error State** di setiap alur utama — termasuk
+   penanganan kondisi jaringan lambat/terputus dan konfigurasi yang
+   belum lengkap, tanpa fatal crash.
+7. **APK Rilis** — dapat diinstal dan didemonstrasikan di perangkat
+   Android fisik.
 
-## Status Sebelumnya: Stage 1 — Define (Minggu 1–3)
+---
 
-Yang SUDAH ada di zip ini:
-- Struktur folder Clean Architecture (feature-first)
-- 4 halaman: Home (list kampanye), Detail Kampanye, Wallet, Upload Bukti
-- Routing dengan `go_router` + bottom navigation persisten
-- Reusable widgets: `LoadingWidget`, `EmptyStateWidget`, `ErrorStateWidget`, `PrimaryButton`
-- Data dummy untuk demo UI (belum terhubung ke blockchain — itu Stage 2)
+## 5. Fitur yang Tidak Dikerjakan (Out of Scope)
 
-Yang BELUM ada (sengaja, sesuai tahapan silabus):
-- Koneksi ke smart contract (Stage 2)
-- Pembuatan/import wallet nyata (Stage 2)
-- Kamera, GPS, upload IPFS (Stage 3)
+Ditetapkan secara sadar di awal supaya scope tetap realistis untuk 12
+minggu pengerjaan solo/tim kecil:
 
-## Cara Menjalankan
+- **Tidak ada backend/server custom.** Seluruh data bersumber dari
+  blockchain (on-chain) dan IPFS — tidak ada REST API atau database
+  server yang dikelola sendiri.
+- **Tidak ada derivasi wallet BIP-44 penuh** yang kompatibel dengan
+  MetaMask/Trust Wallet — wallet dibuat dan dipakai sepenuhnya mandiri
+  di dalam aplikasi ini.
+- **Tidak ada dukungan mainnet/produksi.** Aplikasi tetap berjalan di
+  Polygon Amoy Testnet selama masa pengembangan dan demo.
+- **Tidak ada sistem KYC/verifikasi identitas** organizer maupun donatur.
+- **Tidak ada mekanisme approval/withdrawal request** — donasi
+  diteruskan otomatis dan langsung oleh smart contract ke organizer.
+- **Tidak ada dukungan multi-token/multi-currency** — hanya native
+  token MATIC (testnet) yang didukung.
+- **Tidak ada notifikasi push.**
+- **Tidak ada dukungan multi-bahasa (i18n)** — aplikasi hanya berbahasa
+  Indonesia.
+- **Tidak ada fitur sosial** (komentar, like, share antar-pengguna di
+  dalam aplikasi) pada kampanye.
+- **Tidak ada dashboard admin/analitik** di luar apa yang bisa dilihat
+  langsung dari block explorer publik.
+- **Tidak ada build/testing untuk iOS** — pengembangan dan pengujian
+  difokuskan penuh pada Android sesuai konteks tugas.
 
-1. **Ekstrak zip ini**, lalu buka terminal di folder hasil ekstrak.
+---
 
-2. **Pastikan Flutter SDK sudah terpasang** (cek dengan `flutter doctor`).
-   Kalau ada tanda silang merah untuk Android toolchain, beresin dulu
-   sebelum lanjut.
+## 6. Kriteria Aplikasi Dinyatakan Berhasil
 
-3. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
+Aplikasi dianggap **berhasil** memenuhi tujuan tugas akhir bila seluruh
+poin berikut terpenuhi pada demo Checkpoint Offline 4 (Final):
 
-4. **Jalankan di device/emulator:**
-   ```bash
-   flutter devices        # cek device yang terdeteksi
-   flutter run
-   ```
-   Untuk demo ke dosen, LEBIH BAIK pakai HP Android fisik (kabel USB,
-   USB debugging aktif) daripada emulator — sesuai requirement silabus
-   "diinstal dan didemonstrasikan pada perangkat nyata".
+1. **APK terinstal dan berjalan** di perangkat Android fisik tanpa
+   dependency ke emulator maupun lingkungan development.
+2. **Alur utama (vertical slice) berjalan end-to-end**: pengguna dapat
+   membuat/import wallet → melihat daftar kampanye → memilih satu
+   kampanye → melakukan donasi → transaksi berhasil terverifikasi di
+   blockchain (dapat ditunjukkan lewat PolygonScan Amoy).
+3. **Setiap layar utama** (Home, Detail, Wallet, Upload Proof)
+   menampilkan Loading, Empty, dan Error state yang sesuai konteks —
+   tidak ada layar kosong/putih tanpa penjelasan saat data belum ada
+   atau gagal dimuat.
+4. **Tidak ada fatal crash** saat kondisi jaringan lambat, terputus,
+   atau konfigurasi (RPC/contract) belum lengkap — aplikasi selalu
+   menampilkan pesan yang informatif.
+5. **Fitur Proof-of-Impact berfungsi**: foto dan lokasi GPS berhasil
+   diambil dan diunggah ke IPFS, dengan bukti (hash/link) dapat diakses.
+6. **Source code terorganisir** mengikuti Clean Architecture yang
+   didokumentasikan di `STRUCTURE.md`, dan mahasiswa dapat menjelaskan
+   alasan setiap keputusan desain saat ditanya dosen penguji.
+7. **Riwayat commit Git** menunjukkan progres bertahap yang bermakna
+   (bukan satu commit besar di akhir), selaras dengan timeline 12 minggu.
+8. **Lolos seluruh 4 checkpoint offline** sesuai jadwal yang ditetapkan
+   dosen (Define, UTS Vertical Slice, Harden/peer-review, Final Release).
 
-5. **Inisialisasi Git** (kalau belum):
-   ```bash
-   git init
-   git add .
-   git commit -m "chore: scaffold Flutter project with clean architecture structure"
-   ```
+---
 
-## Struktur Proyek
-
-Baca `STRUCTURE.md` untuk penjelasan lengkap arsitektur dan alasan di
-balik setiap keputusan desain — dokumen ini yang harus kamu pahami
-untuk checkpoint dosen.
-
-## Langkah Selanjutnya (Stage 1, sisa Minggu 1-3)
-
-Lihat rencana detail di chat dengan mentor — ringkasannya:
-1. Jalankan proyek ini, pastikan semua halaman & navigasi berfungsi
-2. Sesuaikan copywriting/warna sesuai selera tim (opsional)
-3. Siapkan wireframe/mockup sederhana (Figma/kertas) sebagai bahan
-   presentasi Checkpoint Offline 1
-4. Commit setiap kali menyelesaikan 1 bagian kecil (jangan menumpuk)
-5. Setelah checkpoint 1 lolos, lanjut ke Stage 2 (Wallet + Web3 integration)
+*Dokumen ini adalah living document — boleh direvisi seiring proyek
+berjalan, tapi setiap revisi besar terhadap scope (terutama bagian
+"Fitur yang Tidak Dikerjakan") sebaiknya dicatat di commit message
+tersendiri, supaya jelas kapan dan kenapa scope berubah.*
