@@ -67,7 +67,7 @@ class CampaignDetailScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text('${c.collectedAmount} MATIC terkumpul dari target ${c.targetAmount} MATIC',
+            Text('${c.collectedAmount} ETH terkumpul dari target ${c.targetAmount} ETH',
                 style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
             const SizedBox(height: 20),
             const Text('Deskripsi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),

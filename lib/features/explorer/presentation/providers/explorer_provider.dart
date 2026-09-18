@@ -10,7 +10,7 @@ class ExplorerNotifier extends AsyncNotifier<List<TransactionHistory>> {
   Future<List<TransactionHistory>> build() async {
     final result = await ref.read(transactionRepositoryProvider).getTransactionHistory();
     return result.fold(
-      (failure) => throw Exception(failure.message),
+      (failure) => <TransactionHistory>[],
       (txs) => txs,
     );
   }
@@ -37,9 +37,13 @@ final walletBalanceProvider = FutureProvider.autoDispose<double>((ref) async {
   final walletService = ref.read(walletServiceProvider);
   final mnemonic = await walletService.readMnemonic();
   if (mnemonic == null || mnemonic.isEmpty) {
-    throw StateError('Tidak ada wallet aktif.');
+    return 0.0;
   }
-  final credentials = walletService.credentialsFromMnemonic(mnemonic);
-  final etherAmount = await ref.read(web3ServiceProvider).getBalance(credentials.address.hexEip55);
-  return etherAmount.getValueInUnit(EtherUnit.ether);
+  try {
+    final credentials = walletService.credentialsFromMnemonic(mnemonic);
+    final etherAmount = await ref.read(web3ServiceProvider).getBalance(credentials.address.hexEip55);
+    return etherAmount.getValueInUnit(EtherUnit.ether);
+  } catch (_) {
+    return 0.0;
+  }
 });

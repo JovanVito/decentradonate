@@ -57,7 +57,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
   void _submit() {
     final amount = double.tryParse(_controller.text.trim());
     if (amount == null || amount <= 0) {
-      setState(() => _errorText = 'Masukkan nominal MATIC yang valid (lebih dari 0).');
+      setState(() => _errorText = 'Masukkan nominal ETH yang valid (lebih dari 0).');
       return;
     }
     setState(() => _errorText = null);
@@ -106,7 +106,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
               labelText: 'Nominal',
               border: const OutlineInputBorder(),
               errorText: _errorText,
-              suffixText: 'MATIC',
+              suffixText: 'ETH',
             ),
           ),
           if (donationState.hasError) ...[
@@ -137,7 +137,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Transaksi berhasil dikirim ke jaringan Polygon Amoy.'),
+            const Text('Transaksi berhasil dikirim ke jaringan Hardhat Local.'),
             const SizedBox(height: 10),
             const Text('Hash Transaksi:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
@@ -154,7 +154,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Cek di PolygonScan Amoy: amoy.polygonscan.com/tx/<hash-ini>',
+              'Cek di Hardhat Node: localhost:8545',
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ],

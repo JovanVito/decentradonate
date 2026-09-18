@@ -60,11 +60,11 @@ class CampaignCard extends StatelessWidget {
       return Container(
         height: 120,
         decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.08),
+          color: AppColors.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
-        child: Icon(Icons.volunteer_activism_rounded, size: 40, color: AppColors.primary.withOpacity(0.6)),
+        child: Icon(Icons.volunteer_activism_rounded, size: 40, color: AppColors.primary.withValues(alpha: 0.6)),
       );
     }
 

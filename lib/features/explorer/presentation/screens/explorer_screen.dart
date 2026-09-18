@@ -55,8 +55,8 @@ class _ExplorerScreenState extends ConsumerState<ExplorerScreen> {
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                       error: (err, st) => Text(
-                        'Gagal memuat saldo',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.error),
+                        'Node tidak aktif. Jalankan:\nnpx hardhat node',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.error),
                       ),
                     ),
                     const Divider(height: 24),
