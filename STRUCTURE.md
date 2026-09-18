@@ -332,4 +332,62 @@ User tap "Ambil Foto" / "Tandai Lokasi"
 - [ ] Uji silang perangkat (peer review)
 - [ ] Tidak ada fatal error saat koneksi lambat
 
+## Stage 3.5 — Hardhat Local Node (Pengganti Polygon Amoy)
+
+### Kenapa Hardhat Local?
+
+Polygon Amoy Testnet punya beberapa bottleneck:
+- Faucet tidak stabil (sulit dapat testnet MATIC)
+- Deploy via Remix + MetaMask multi-langkah
+- Butuh Alchemy API key
+- Faucet sering down atau limit
+
+Hardhat local node mengatasi semua ini:
+- **Tidak perlu API key, faucet, atau MetaMask**
+- **Deploy contract <30 detik**
+- **MATIC/ETH tak terbatas** (mining lokal)
+- **Kode Flutter tidak berubah** (hanya RPC URL dan chainId)
+
+### Konfigurasi Hardhat Local
+
+```
+blockchain/hardhat/
+├── hardhat.config.js          ← config jaringan localhost:8545, chainId 31337
+├── contracts/Decentradonate.sol ← copy dari blockchain/Decentradonate.sol
+├── scripts/deploy.js          ← deployment script
+├── artifacts/                 ← hasil compile (di-generate)
+└── package.json               ← dependencies Hardhat
+```
+
+**Jalankan:**
+```bash
+cd blockchain/hardhat
+npx hardhat node                  # terminal 1 — mulai local blockchain
+npx hardhat run scripts/deploy.js --network localhost  # terminal 2 — deploy contract
+```
+
+**Contract address:** `0x5FbDB2315678afecb367f032d93F642f64180aa3`
+
+### Perubahan File (Hanya 1)
+
+| File | Sebelum | Sesudah |
+|------|---------|---------|
+| `contract_constants.dart` | chainId=80002, rpcUrl=Alchemy | chainId=31337, rpcUrl=http://127.0.0.1:8545 |
+
+### Hardhat Accounts Default
+
+Hardhat generate 20 account dengan 10000 ETH masing-masing:
+- Account #0: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb9226` (private key: `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff`)
+- Account lainnya di terminal `hardhat node` output
+
+### Rollback ke Polygon Amoy
+
+Jika ingin kembali ke testnet real, ubah `contract_constants.dart`:
+1. Ganti `rpcUrl` → Alchemy HTTP URL
+2. Ganti `wsUrl` → Alchemy WSS URL  
+3. Ganti `contractAddress` → alamat contract dari Remix
+4. Ganti `chainId` → `80002`
+5. Ganti `chainName` → `'Polygon Amoy Testnet'`
+6. Ganti `nativeCurrencySymbol` → `'MATIC'`
+
 ## Checklist Kesiapan Checkpoint Offline 1

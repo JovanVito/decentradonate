@@ -1,25 +1,22 @@
 /// Konfigurasi jaringan blockchain & smart contract.
-/// SENGAJA dipisah dari kode logic supaya waktu pindah dari Testnet
-/// ke Mainnet (kalau nanti diperlukan), cukup ubah file ini saja.
+/// SENSAJA dipisah dari kode logic supaya waktu pindah dari local
+/// ke testnet/mainnet, cukup ubah file ini saja.
 ///
-/// NILAI DI BAWAH INI MASIH PLACEHOLDER — akan diisi nyata di Stage 2
-/// saat smart contract sudah di-deploy ke Polygon Amoy Testnet.
+/// NILAI DI BAWAH INI SUDAH TERISI (Hardhat Local) — untuk Stage 3.
 class ContractConstants {
   ContractConstants._();
 
-  // Polygon Amoy Testnet
-  static const int chainId = 80002;
-  static const String chainName = 'Polygon Amoy Testnet';
-  static const String nativeCurrencySymbol = 'MATIC';
+  // Hardhat Local Node
+  static const int chainId = 31337;
+  static const String chainName = 'Hardhat Local';
+  static const String nativeCurrencySymbol = 'ETH';
 
-  // TODO(Stage 2): ganti dengan Alchemy HTTP RPC URL asli (free tier)
-  static const String rpcUrl = 'https://polygon-amoy.g.alchemy.com/v2/REPLACE_ME';
+  // Hardhat local RPC
+  static const String rpcUrl = 'http://127.0.0.1:8545';
+  static const String wsUrl = 'ws://127.0.0.1:8545';
 
-  // TODO(Stage 2): ganti dengan WebSocket URL Alchemy (untuk listen event realtime)
-  static const String wsUrl = 'wss://polygon-amoy.g.alchemy.com/v2/REPLACE_ME';
-
-  // TODO(Stage 2): isi setelah smart contract di-deploy (mis. via Remix/Hardhat)
-  static const String contractAddress = '0xREPLACE_WITH_DEPLOYED_ADDRESS';
+  // Contract address hasil deploy Hardhat (0x5FbDB2315678afecb367f032d93F642f64180aa3)
+  static const String contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
   // Path ke file ABI hasil compile smart contract
   static const String abiAssetPath = 'assets/contracts/donation_abi.json';
@@ -27,17 +24,13 @@ class ContractConstants {
   // TODO(Stage 3): isi dengan Pinata JWT API key (free tier, jangan hardcode di git!)
   static const String pinataApiUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
 
-  // TODO(Stage 3): isi dengan Pinata JWT API key
   static const String pinataJwt = 'REPLACE_WITH_PINATA_JWT';
 
   /// Helper untuk deteksi "masih placeholder atau sudah diisi asli".
-  /// Dipakai Web3Service/WalletRepositoryImpl supaya kegagalan konfigurasi
-  /// terdeteksi SEBELUM mencoba request jaringan yang pasti gagal —
-  /// menghasilkan pesan error yang jelas ("belum dikonfigurasi") alih-alih
-  /// error jaringan yang membingungkan (mis. "Failed host lookup").
   static bool get isRpcConfigured => !rpcUrl.contains('REPLACE_ME');
-
   static bool get isContractConfigured => !contractAddress.toUpperCase().contains('REPLACE');
-
   static bool get isPinataConfigured => !pinataJwt.contains('REPLACE');
+
+  /// Helper untuk mendeteksi koneksi ke local node (bukan placeholder).
+  static bool get isLocalHost => rpcUrl.contains('127.0.0.1');
 }

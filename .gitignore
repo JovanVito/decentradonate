@@ -34,3 +34,11 @@ ios/Flutter/Flutter.podspec
 # Secrets — JANGAN PERNAH commit Alchemy/Pinata API key atau private key wallet
 .env
 *.env.local
+
+# Hardhat Local Node — jangan commit artifacts, cache, node_modules
+blockchain/hardhat/artifacts/
+blockchain/hardhat/cache/
+blockchain/hardhat/dist/
+blockchain/hardhat/node_modules/
+blockchain/hardhat/package-lock.json
+blockchain/hardhat/deploy.ts
