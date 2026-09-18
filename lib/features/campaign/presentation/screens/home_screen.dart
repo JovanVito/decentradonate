@@ -10,15 +10,6 @@ import '../../domain/entities/campaign.dart';
 import '../widgets/campaign_card.dart';
 
 /// Halaman Home / daftar kampanye.
-///
-/// CATATAN STAGE 1: State (Loading/Empty/Error/Loaded) masih dikontrol
-/// manual lewat `_debugState` supaya kamu bisa DEMO ke dosen bahwa ketiga
-/// state UI sudah ada, TANPA perlu koneksi blockchain nyata dulu.
-///
-/// Di Stage 2, `_debugState` akan dihapus dan diganti dengan Riverpod
-/// `AsyncNotifier` yang membaca dari CampaignRepository (data asli dari
-/// smart contract via web3dart). Struktur UI di bawah TIDAK perlu berubah
-/// banyak — cuma sumber datanya yang berpindah dari dummy ke repository.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -37,36 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text(AppStrings.homeTitle,
             style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
-          // Menu ini HANYA untuk demo Stage 1 — memaksa tampilan pindah
-          // antar state supaya dosen bisa lihat ketiganya tanpa mematikan wifi.
-          PopupMenuButton<String>(
-            tooltip: 'Demo state (Stage 1 only)',
-            onSelected: (v) {
-              switch (v) {
-                case 'loading':
-                  _setState(const ViewLoading());
-                  break;
-                case 'empty':
-                  _setState(const ViewEmpty());
-                  break;
-                case 'error':
-                  _setState(const ViewError(AppStrings.errorCampaignSubtitle));
-                  break;
-                case 'loaded':
-                  _setState(ViewLoaded(dummyCampaigns()));
-                  break;
-              }
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'loaded', child: Text('Tampilkan: Loaded')),
-              PopupMenuItem(value: 'loading', child: Text('Tampilkan: Loading')),
-              PopupMenuItem(value: 'empty', child: Text('Tampilkan: Empty')),
-              PopupMenuItem(value: 'error', child: Text('Tampilkan: Error')),
-            ],
-            icon: const Icon(Icons.bug_report_outlined),
-          ),
-        ],
       ),
       body: _buildBody(context),
     );

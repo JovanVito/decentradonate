@@ -1,17 +1,11 @@
 /// Entity domain murni — TIDAK tahu apa-apa soal JSON, SQLite, atau blockchain.
-/// Ini representasi "apa itu Campaign" secara konsep, dipakai di seluruh app.
-///
-/// Sengaja plain Dart class (bukan @freezed) di Stage 1 supaya proyek bisa
-/// langsung `flutter run` tanpa build_runner. Model data nyata (dengan
-/// fromJson/fromMap untuk smart contract & sqflite) akan dibuat di Stage 2
-/// sebagai `CampaignModel extends Campaign` di layer data/models.
 class Campaign {
-  final String id; // akan diisi dari on-chain campaign ID (uint256 -> string)
+  final String id;
   final String title;
   final String description;
-  final String organizer; // wallet address pembuat kampanye
-  final double targetAmount; // dalam MATIC
-  final double collectedAmount; // dalam MATIC
+  final String organizer;
+  final double targetAmount;
+  final double collectedAmount;
   final String? imageUrl;
 
   const Campaign({
@@ -48,25 +42,15 @@ class Campaign {
   }
 }
 
-/// Data dummy untuk keperluan demo UI di Stage 1, SEBELUM integrasi
-/// smart contract nyata masuk di Stage 2. Hapus/ganti saat repository
-/// data-layer sudah terhubung ke web3dart.
-///
-/// CATATAN Langkah 2.3: id di sini SENGAJA mulai dari '0' (bukan '1')
-/// supaya selaras dengan indexing array `campaigns` di Solidity yang
-/// juga mulai dari 0. Ini TIDAK berarti otomatis tersinkron dengan
-/// contract asli — kamu tetap harus membuat campaign sungguhan di
-/// contract (lihat blockchain/DEPLOY_GUIDE.md Langkah 7) sebelum
-/// tombol "Donasi Sekarang" di sini benar-benar berhasil on-chain.
 List<Campaign> dummyCampaigns() => const [
       Campaign(
         id: '0',
         title: 'Bantu Renovasi Sekolah Darurat di Cianjur',
-        description:
-            'Dana akan digunakan untuk membeli material bangunan dan upah tukang setempat.',
+        description: 'Dana untuk material bangunan dan upah tukang setempat.',
         organizer: '0xAbC1...9F3d',
         targetAmount: 5,
         collectedAmount: 2.35,
+        imageUrl: 'assets/images/foto1.png',
       ),
       Campaign(
         id: '1',
@@ -75,6 +59,7 @@ List<Campaign> dummyCampaigns() => const [
         organizer: '0x77Ef...11Aa',
         targetAmount: 3,
         collectedAmount: 3,
+        imageUrl: 'assets/images/foto2.png',
       ),
       Campaign(
         id: '2',
@@ -83,5 +68,42 @@ List<Campaign> dummyCampaigns() => const [
         organizer: '0x902C...44Fe',
         targetAmount: 1.5,
         collectedAmount: 0.4,
+        imageUrl: 'assets/images/foto3.png',
+      ),
+      Campaign(
+        id: '3',
+        title: 'Pembangunan Poskesdes Desa Cibitung',
+        description: 'Membangun pos kesehatan desa dengan fasilitas lengkap.',
+        organizer: '0x123A...567B',
+        targetAmount: 10,
+        collectedAmount: 7.5,
+        imageUrl: 'assets/images/foto4.png',
+      ),
+      Campaign(
+        id: '4',
+        title: 'Bantuan Benih Pertanian Petani Lembang',
+        description: 'Pemberian benih unggul untuk meningkatkan hasil panen.',
+        organizer: '0x987C...321D',
+        targetAmount: 7,
+        collectedAmount: 3.2,
+        imageUrl: 'assets/images/foto5.png',
+      ),
+      Campaign(
+        id: '5',
+        title: 'Rumah Ibadah Desa Margahayu',
+        description: 'Pembangunan masjid dengan fasilitas khatam Quran.',
+        organizer: '0xDEF4...567A',
+        targetAmount: 15,
+        collectedAmount: 12.8,
+        imageUrl: 'assets/images/foto6.png',
+      ),
+      Campaign(
+        id: '6',
+        title: 'Bantuan Kuliah Anak Papua',
+        description: 'Biaya pendidikan untuk 20 anak Papua mampu.',
+        organizer: '0xA1B2...C3D4',
+        targetAmount: 8,
+        collectedAmount: 5.1,
+        imageUrl: 'assets/images/foto6.png',
       ),
     ];

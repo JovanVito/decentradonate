@@ -42,6 +42,18 @@ class AppStrings {
   static const gettingLocation = 'Mendapatkan lokasi...';
   static const preparingUpload = 'Menyiapkan unggahan...';
 
+  // Explorer
+  static const explorerTitle = 'Explorer & Saldo';
+  static const walletBalance = 'Saldo Wallet';
+  static const transactionHistory = 'Riwayat Transaksi';
+  static const emptyTransactionTitle = 'Belum Ada Transaksi';
+  static const emptyTransactionSubtitle =
+      'Donasi pertama Anda akan muncul di sini.';
+  static const errorTransactionTitle = 'Gagal Memuat Riwayat';
+  static const addressLabel = 'Alamat';
+  static const walletInfo = 'Ketik wallet untuk melihat saldo';
+  static const explorerBalanceLoading = 'Memuat saldo...';
+
   // Generic states
   static const retry = 'Coba Lagi';
   static const loading = 'Memuat data...';

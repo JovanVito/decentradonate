@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../domain/entities/campaign.dart';
 
-/// Kartu kampanye reusable — dipakai di list Home.
-/// Dumb widget: hanya menerima data + callback, tidak tahu soal state
-/// management/provider sama sekali (mudah di-preview & di-test).
 class CampaignCard extends StatelessWidget {
   final Campaign campaign;
   final VoidCallback onTap;
@@ -23,16 +20,7 @@ class CampaignCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Icon(Icons.volunteer_activism_rounded,
-                    size: 40, color: AppColors.primary.withOpacity(0.6)),
-              ),
+              _buildImage(context),
               const SizedBox(height: 12),
               Text(
                 campaign.title,
@@ -54,13 +42,58 @@ class CampaignCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${campaign.collectedAmount} / ${campaign.targetAmount} MATIC',
+                  Text('${campaign.collectedAmount.toStringAsFixed(2)} / ${campaign.targetAmount.toStringAsFixed(2)} ETH',
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                   Text('${(campaign.progressPercent * 100).toStringAsFixed(0)}%',
                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondary)),
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImage(BuildContext context) {
+    if (campaign.imageUrl == null) {
+      return Container(
+        height: 120,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.center,
+        child: Icon(Icons.volunteer_activism_rounded, size: 40, color: AppColors.primary.withOpacity(0.6)),
+      );
+    }
+
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        image: DecorationImage(
+          image: AssetImage(campaign.imageUrl!),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black54],
+          ),
+        ),
+        alignment: Alignment.bottomLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+            campaign.title,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),

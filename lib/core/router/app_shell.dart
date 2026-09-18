@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/app_bottom_nav.dart';
 
-/// Shell yang membungkus Home / Wallet / Upload Proof dengan satu
-/// bottom navigation yang persisten. `StatefulShellRoute` (go_router)
-/// menjaga state tiap tab tetap hidup saat berpindah tab (mis. scroll
-/// position di Home tidak reset saat pindah ke Wallet lalu balik lagi).
+/// Shell yang membungkus Home / Explorer / Wallet / Upload Proof
+/// dengan satu bottom navigation yang persisten. `StatefulShellRoute`
+/// (go_router) menjaga state tiap tab tetap hidup saat berpindah tab.
 class AppShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
