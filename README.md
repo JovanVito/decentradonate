@@ -148,8 +148,3 @@ poin berikut terpenuhi pada demo Checkpoint Offline 4 (Final):
    dosen (Define, UTS Vertical Slice, Harden/peer-review, Final Release).
 
 ---
-
-*Dokumen ini adalah living document — boleh direvisi seiring proyek
-berjalan, tapi setiap revisi besar terhadap scope (terutama bagian
-"Fitur yang Tidak Dikerjakan") sebaiknya dicatat di commit message
-tersendiri, supaya jelas kapan dan kenapa scope berubah.*
