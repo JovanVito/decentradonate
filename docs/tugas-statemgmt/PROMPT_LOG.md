@@ -1,9 +1,5 @@
 # Catatan Bantuan AI dan Pemeriksaan Manual
 
-Sesuai ketentuan tugas, bagian ini mencatat prompt AI yang dipakai serta
-bagian yang diperiksa atau diperbaiki sendiri. Prinsipnya: AI dipakai
-untuk boilerplate dan draf test, keputusan akhir tetap di tangan penulis.
-
 ## Prompt yang Dipakai
 
 1. Prompt: "Buatkan draf AsyncNotifier untuk daftar campaign dengan
