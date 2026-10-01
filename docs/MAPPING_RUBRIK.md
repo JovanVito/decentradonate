@@ -1,55 +1,90 @@
-# Mapping Rubrik Flutter → Struktur Decentradonate (Opsi A)
+# Kesesuaian Struktur Proyek dengan Kebutuhan Progress
 
-> Dokumen penerjemah 1 halaman untuk dosen penguji.
-> Struktur contoh (`screens/`, `routes/`, `models/`) **sudah dipenuhi**, hanya memakai
-> penamaan Clean Architecture feature-first. Tidak ada perubahan kode untuk Opsi A.
+Dokumen ini dibuat untuk menjelaskan posisi proyek Decentradonate terhadap
+kebutuhan progress mata kuliah. Strukturnya memang tidak sama persis dengan
+contoh yang diberikan, tapi secara isi sudah mencakup semuanya. Perbedaannya
+hanya di penamaan folder karena proyek ini memakai Clean Architecture
+dengan pendekatan feature-first.
 
-## 1. Tabel Mapping (syarat → file aktual)
+## 1. Posisi Setiap Kebutuhan
 
-| Syarat Rubrik | Contoh di Soal | File Aktual di Repo | Status |
-|---|---|---|---|
-| Entry point + root widget | `lib/main.dart`, `lib/app.dart` | `lib/main.dart` (ProviderScope), `lib/app.dart` (MaterialApp.router) | ✅ Persis sama |
-| Routing antarhalaman | `routes/app_routes.dart` | `lib/core/router/app_router.dart` + `lib/core/router/app_shell.dart` (go_router `StatefulShellRoute`, bottom nav Home/Wallet/Upload Proof persisten, deep-link `/campaign/:id`) | ✅ Lebih lengkap |
-| Prototype Dashboard | `screens/dashboard_screen.dart` | `lib/features/campaign/presentation/screens/home_screen.dart` | ✅ |
-| Prototype Detail | `screens/detail_screen.dart` | `lib/features/campaign/presentation/screens/campaign_detail_screen.dart` | ✅ |
-| Prototype Login (auth terpusat) | `screens/login_screen.dart` | **Diganti** `lib/features/wallet/presentation/screens/wallet_screen.dart` + `import_wallet_screen.dart` + `backup_mnemonic_screen.dart`. Alasan: tidak ada backend/auth (self-custody, lihat `PROJECT_DEFINITION.md` Out of Scope). Wallet = identitas + login desentralisasi. | ⚠️ Pengganti disengaja, lihat §2 |
-| Prototype Profile | `screens/profile_screen.dart` | **Digabung** ke `wallet_screen.dart` (alamat wallet, saldo MATIC, backup mnemonic). Tidak ada file `profile_screen.dart` terpisah. | ⚠️ Pengganti disengaja, lihat §2 |
-| Reusable button / input / card / appbar | `widgets/primary_button.dart`, `app_text_field.dart` | `lib/core/widgets/primary_button.dart`, `loading_widget.dart`, `empty_state_widget.dart`, `error_state_widget.dart`, `app_bottom_nav.dart` + `lib/features/campaign/presentation/widgets/campaign_card.dart`, `lib/features/donation/presentation/widgets/donate_bottom_sheet.dart` | ✅ (+ Loading/Empty/Error state) |
-| Model data | `models/user_model.dart` | `lib/features/campaign/domain/entities/campaign.dart`, `lib/features/wallet/domain/entities/wallet_info.dart`, `lib/features/proof_of_impact/domain/entities/proof_of_impact.dart`, `lib/features/explorer/domain/entities/transaction_history.dart` (istilah `models/` → `domain/entities/`) | ✅ |
-| Service / API | `services/auth_service.dart` | `lib/services/wallet_service.dart` (bip39 + secure storage), `lib/services/web3_service.dart` (RPC), + `lib/features/*/data/repositories/*_impl.dart` (donasi on-chain, IPFS via Pinata). Tidak ada REST API custom — semua data dari blockchain/IPFS. | ✅ |
+Kebutuhan pertama adalah prototype. Di proyek ini prototype-nya berupa tampilan
+Flutter yang sudah bisa dijalankan, yaitu halaman Home sebagai dashboard,
+halaman Detail kampanye, halaman Wallet, dan halaman Upload Bukti. File-nya ada di
+`lib/features/campaign/presentation/screens/home_screen.dart` untuk dashboard,
+`campaign_detail_screen.dart` untuk detail, `lib/features/wallet/presentation/screens/wallet_screen.dart`
+beserta `import_wallet_screen.dart` dan `backup_mnemonic_screen.dart` untuk bagian
+wallet, serta `lib/features/proof_of_impact/presentation/screens/upload_proof_screen.dart`
+untuk upload bukti. Jadi semua alur utama sudah bisa didemokan langsung di HP.
 
-## 2. Dua Perbedaan yang Harus Dijelaskan Jujur Saat Demo
+Kebutuhan kedua adalah struktur proyek. Contoh di soal memisahkan halaman,
+widget, model, service, dan routing. Proyek ini melakukan hal yang sama,
+hanya saja dikelompokkan per fitur. Halaman ada di `features/*/presentation/screens`,
+widget yang dipakai berulang ada di `lib/core/widgets` dan di
+`features/*/presentation/widgets`, model data ada di `features/*/domain/entities`
+dengan nama seperti `campaign.dart` dan `wallet_info.dart`, service ada di
+`lib/services` seperti `wallet_service.dart` dan `web3_service.dart` ditambah
+repository di `features/*/data/repositories`. Routing ada di
+`lib/core/router/app_router.dart` dan `app_shell.dart`.
 
-1. **Tidak ada Login username/password.** Ini scope yang disengaja, bukan lupa.
-   Rujukan: `PROJECT_DEFINITION.md` §5 "Tidak ada backend/server custom, tidak ada KYC".
-   Demo: tunjukkan Create Wallet → Backup 12 kata → Import Wallet sebagai alur login.
-2. **Tidak ada `profile_screen.dart`.** Fungsinya ada di tab Wallet.
-   Demo: buka tab Wallet → tunjukkan address + saldo + tombol backup.
+Kebutuhan ketiga adalah routing. Perpindahan halaman sudah diatur memakai
+go_router dengan StatefulShellRoute. Bottom navigation untuk Home, Wallet,
+dan Upload Proof dibuat persisten sehingga pindah tab tidak mengulang state.
+Halaman detail memakai rute `/campaign/:id` sehingga bisa dibuka lewat deep link,
+dan data campaign dikirim lewat `extra` supaya tidak perlu fetch ulang.
 
-## 3. Urutan Demo 3 Menit (bukti semua konsep)
+Kebutuhan keempat adalah reusable component. Komponen yang dipakai berulang
+sudah dipisah, antara lain `primary_button.dart`, `loading_widget.dart`,
+`empty_state_widget.dart`, `error_state_widget.dart`, dan `app_bottom_nav.dart`
+di `lib/core/widgets`, ditambah `campaign_card.dart` dan `donate_bottom_sheet.dart`
+di masing-masing fitur. Setiap layar utama juga sudah punya kondisi loading,
+kosong, dan error.
 
-1. `flutter run` di HP fisik → tab Home (Dashboard) → scroll campaign dummy.
-2. Tap card → Detail (`extra` Campaign tanpa refetch) → tap Donasi → `DonateBottomSheet`.
-3. Bottom nav Home/Wallet/Upload Proof → state tiap tab tidak reset (bukti `StatefulShellRoute`).
-4. Menu ⋮ di app bar Home → tunjukkan Loading / Empty / Error state (syarat "harus ada loading/empty/error").
-5. Tab Wallet → buat wallet → tunjukkan `BackupMnemonicScreen` (mnemonic tidak disimpan di provider state, hanya di-return sekali — lihat `STRUCTURE.md` Stage 2.1).
+Entry point dan root widget juga sudah sesuai contoh, yaitu `lib/main.dart`
+yang berisi ProviderScope dan `lib/app.dart` yang berisi MaterialApp.router.
 
-## 4. Cheat-Sheet Jawaban Viva (1 menit per pertanyaan)
+## 2. Hal yang Perlu Dijelaskan Saat Presentasi
 
-- **"Kenapa tidak taruh semua di satu file / folder screens saja?"**
-  → Supaya 1 perubahan (ganti Alchemy → RPC lain) tidak merambat ke UI.
-  Aturan besi: `domain` tidak boleh import `data`/`presentation` (`STRUCTURE.md:15`, `Architecture.md` Filosofi).
-- **"Kenapa go_router + StatefulShellRoute, bukan Navigator.push?"**
-  → Deep-linking (`/campaign/:id` bisa di-share) + bottom nav persisten tanpa reset scroll (`STRUCTURE.md:32-41`).
-- **"Kenapa ViewState sealed class, bukan bool isLoading?"**
-  → Compiler memaksa handle Initial/Loading/Loaded/Empty/Error, cegah lupa handle error saat demo (`lib/core/utils/view_state.dart`).
-- **"Kenapa mnemonic tidak disimpan di state?"**
-  → Dikembalikan sekali via return value → dikirim ke Backup screen via `extra`, tidak masuk provider state (minimalkan jejak rahasia di memori).
-- **"Kenapa Home masih dummy?"**
-  → Scope disengaja Stage 1 fokus routing+UI; sinkronisasi on-chain penuh pekerjaan lanjutan. ID dummy `'0','1','2'` diselaraskan dengan index array Solidity untuk test donasi end-to-end (`STRUCTURE.md:228-239`).
+Ada dua hal yang biasanya ditanyakan karena namanya tidak sama dengan contoh.
 
-## 5. Referensi Silang Dokumen
+Pertama, proyek ini tidak punya halaman login username dan password.
+Alasannya karena sejak awal sudah ditetapkan tidak ada backend dan tidak ada
+akun terpusat. Penggantinya adalah wallet. Alur create wallet, backup 12 kata,
+dan import wallet di tab Wallet itu yang menjadi pengganti login. Penjelasan
+lengkap soal batasan ini ada di PROJECT_DEFINITION bagian Out of Scope.
 
-- Arsitektur penuh: `Architecture.md`, `STRUCTURE.md`
-- Scope & kriteria lulus: `PROJECT_DEFINITION.md` §4–§6
-- Konstanta chain/RPC/IPFS: `lib/core/constants/contract_constants.dart`
+Kedua, proyek ini tidak punya file profile tersendiri. Fungsinya digabung ke
+halaman Wallet, yaitu menampilkan alamat wallet, saldo, dan tombol backup
+mnemonic. Jadi kalau diminta menunjukkan profile, yang dibuka adalah tab Wallet.
+
+## 3. Alur Demo yang Disarankan
+
+Untuk menunjukkan bahwa semua kebutuhan sudah terpenuhi, urutan demo yang
+paling mudah adalah sebagai berikut. Pertama jalankan aplikasi di HP fisik
+dan buka tab Home, lalu scroll daftar kampanye. Kedua buka salah satu campaign
+untuk masuk ke halaman detail, lalu buka bottom sheet donasi. Ketiga pindah-pindah
+tab Home, Wallet, dan Upload Proof untuk menunjukkan state tidak hilang.
+Keempat buka menu titik tiga di app bar Home untuk menunjukkan kondisi loading,
+empty, dan error. Kelima buka tab Wallet dan tunjukkan proses buat wallet sampai
+ke halaman backup mnemonic.
+
+## 4. Catatan Tambahan untuk Pertanyaan Dosen
+
+Pemisahan domain, data, dan presentation sengaja dibuat supaya perubahan di satu
+bagian tidak merambat ke bagian lain. Misalnya kalau RPC diganti, yang berubah
+hanya service dan repository, aturan bisnis di domain dan tampilan tidak ikut
+berubah. Aturannya domain tidak boleh import dari data atau presentation.
+
+Pemilihan go_router dengan StatefulShellRoute alasannya untuk deep link dan
+navigasi bawah yang tetap hidup. Pemilihan ViewState dengan sealed class
+alasannya supaya semua kondisi (initial, loading, loaded, empty, error) wajib
+ditangani dan tidak ada yang terlewat. Mnemonic tidak disimpan di state provider
+setelah dibuat, hanya dikembalikan sekali dan dikirim ke halaman backup supaya
+jejaknya seminimal mungkin. Data di Home masih dummy karena fokus tahap awal
+adalah routing dan UI, sinkronisasi penuh dari contract menjadi pekerjaan lanjutan.
+ID dummy memakai 0, 1, 2 supaya selaras dengan index array di smart contract
+untuk keperluan uji donasi.
+
+Dokumen pendukung lain yang bisa dibuka saat presentasi adalah STRUCTURE.md
+untuk alasan arsitektur, Architecture.md untuk gambaran menyeluruh, dan
+PROJECT_DEFINITION.md bagian 4 sampai 6 untuk daftar fitur dan kriteria lulus.
