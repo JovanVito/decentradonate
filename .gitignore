@@ -31,6 +31,9 @@ ios/.symlinks/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 
+# Catatan personal — tidak ikut push ke GitHub
+docs/MAPPING_RUBRIK.md
+
 # Secrets — JANGAN PERNAH commit Alchemy/Pinata API key atau private key wallet
 .env
 *.env.local
