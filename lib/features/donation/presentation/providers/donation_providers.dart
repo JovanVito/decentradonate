@@ -21,6 +21,8 @@ class DonationNotifier extends AsyncNotifier<String?> {
   Future<String?> build() async => null;
 
   Future<void> donate({required int campaignId, required double amountInMatic}) async {
+    // Guard anti double-tap: kalau submit sedang berjalan, abaikan panggilan baru.
+    if (state.isLoading) return;
     state = const AsyncLoading();
     final result = await ref.read(donationRepositoryProvider).donate(
           campaignId: campaignId,
