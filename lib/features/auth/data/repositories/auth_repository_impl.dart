@@ -30,6 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _client!.auth.signUp(
         email: email,
         password: password,
+        emailRedirectTo: SupabaseConfig.emailRedirectTo,
         data: {'username': username},
       );
       final user = response.user;
@@ -82,7 +83,10 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Left(ConfigurationFailure('Supabase belum dikonfigurasi.'));
     }
     try {
-      await _client!.auth.resetPasswordForEmail(email);
+      await _client!.auth.resetPasswordForEmail(
+        email,
+        redirectTo: SupabaseConfig.emailRedirectTo,
+      );
       return const Right(null);
     } catch (error) {
       return Left(_failure(error));
