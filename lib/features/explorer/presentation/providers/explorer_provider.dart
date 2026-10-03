@@ -8,16 +8,18 @@ import '../../../../core/providers/service_providers.dart';
 class ExplorerNotifier extends AsyncNotifier<List<TransactionHistory>> {
   @override
   Future<List<TransactionHistory>> build() async {
-    final result = await ref.read(transactionRepositoryProvider).getTransactionHistory();
+    final result =
+        await ref.read(transactionRepositoryProvider).getTransactionHistory();
     return result.fold(
-      (failure) => <TransactionHistory>[],
+      (failure) => throw Exception(failure.message),
       (txs) => txs,
     );
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    final result = await ref.read(transactionRepositoryProvider).getTransactionHistory();
+    final result =
+        await ref.read(transactionRepositoryProvider).getTransactionHistory();
     state = result.fold(
       (failure) => AsyncError(failure.message, StackTrace.current),
       (txs) => AsyncData(txs),
@@ -29,7 +31,8 @@ final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   return TransactionRepositoryImpl(ref.read(web3ServiceProvider));
 });
 
-final explorerProvider = AsyncNotifierProvider<ExplorerNotifier, List<TransactionHistory>>(
+final explorerProvider =
+    AsyncNotifierProvider<ExplorerNotifier, List<TransactionHistory>>(
   ExplorerNotifier.new,
 );
 
@@ -41,7 +44,9 @@ final walletBalanceProvider = FutureProvider.autoDispose<double>((ref) async {
   }
   try {
     final credentials = walletService.credentialsFromMnemonic(mnemonic);
-    final etherAmount = await ref.read(web3ServiceProvider).getBalance(credentials.address.hexEip55);
+    final etherAmount = await ref
+        .read(web3ServiceProvider)
+        .getBalance(credentials.address.hexEip55);
     return etherAmount.getValueInUnit(EtherUnit.ether);
   } catch (_) {
     return 0.0;

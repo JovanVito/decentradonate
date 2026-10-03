@@ -13,22 +13,72 @@ import '../../features/wallet/presentation/screens/wallet_screen.dart';
 import 'app_shell.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: SupabaseConfig.isConfigured && supabaseClient?.auth.currentSession == null ? '/login' : '/',
+  initialLocation:
+      SupabaseConfig.isConfigured && supabaseClient?.auth.currentSession == null
+          ? '/login'
+          : '/',
   routes: [
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
-    GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordScreen()),
+    GoRoute(
+        path: '/forgot-password',
+        builder: (_, __) => const ForgotPasswordScreen()),
     GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
-    GoRoute(path: '/organizer/terms', builder: (_, __) => const OrganizerTermsScreen()),
-    GoRoute(path: '/campaign/create', builder: (_, __) => const CreateCampaignScreen()),
+    GoRoute(
+        path: '/organizer/terms',
+        builder: (_, __) => const OrganizerTermsScreen()),
+    GoRoute(
+        path: '/campaign/create',
+        builder: (_, __) => const CreateCampaignScreen()),
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
+      builder: (context, state, navigationShell) =>
+          AppShell(navigationShell: navigationShell),
       branches: [
-        StatefulShellBranch(routes: [GoRoute(path: '/', builder: (_, __) => const HomeScreen(), routes: [GoRoute(path: 'campaign/:id', builder: (context, state) { final id = state.pathParameters['id']!; final campaign = state.extra is Campaign ? state.extra as Campaign : null; return CampaignDetailScreen(campaignId: id, campaign: campaign); })])]),
-        StatefulShellBranch(routes: [GoRoute(path: '/explorer', builder: (_, __) => const ExplorerScreen())]),
-        StatefulShellBranch(routes: [GoRoute(path: '/wallet', builder: (_, __) => const WalletScreen(), routes: [GoRoute(path: 'backup', builder: (_, state) => BackupMnemonicScreen(mnemonic: state.extra as String)), GoRoute(path: 'import', builder: (_, __) => const ImportWalletScreen())])]),
-        StatefulShellBranch(routes: [GoRoute(path: '/upload-proof', builder: (_, __) => const UploadProofScreen())]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) => const HomeScreen(),
+            routes: [
+              GoRoute(
+                path: 'campaign/:id',
+                builder: (context, state) {
+                  final id = state.pathParameters['id']!;
+                  final campaign =
+                      state.extra is Campaign ? state.extra as Campaign : null;
+                  return CampaignDetailScreen(
+                      campaignId: id, campaign: campaign);
+                },
+              ),
+            ],
+          ),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/history', builder: (_, __) => const ExplorerScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: '/wallet',
+            builder: (_, __) => const WalletScreen(),
+            routes: [
+              GoRoute(
+                  path: 'backup',
+                  builder: (_, state) =>
+                      BackupMnemonicScreen(mnemonic: state.extra as String)),
+              GoRoute(
+                  path: 'import',
+                  builder: (_, __) => const ImportWalletScreen()),
+            ],
+          ),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+              path: '/upload-proof',
+              builder: (_, __) => const UploadProofScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+        ]),
       ],
     ),
   ],

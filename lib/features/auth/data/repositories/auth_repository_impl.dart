@@ -34,6 +34,13 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       final user = response.user;
       if (user == null) return const Left(UnexpectedFailure('Signup gagal.'));
+      if (response.session != null) {
+        await _client!.from('profiles').insert({
+          'id': user.id,
+          'username': username,
+          'email': email,
+        });
+      }
       return Right(UserProfile(
         id: user.id,
         username: username,
@@ -96,12 +103,19 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserProfile>> getProfile() async {
     final user = _client?.auth.currentUser;
-    if (user == null) return const Left(UnexpectedFailure('Sesi belum tersedia.'));
+    if (user == null)
+      return const Left(UnexpectedFailure('Sesi belum tersedia.'));
     try {
-      final row = await _client!.from('profiles').select().eq('id', user.id).maybeSingle();
+      final row = await _client!
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .maybeSingle();
       return Right(UserProfile(
         id: user.id,
-        username: (row?['username'] as String?) ?? (user.userMetadata?['username'] as String?) ?? 'Pengguna',
+        username: (row?['username'] as String?) ??
+            (user.userMetadata?['username'] as String?) ??
+            'Pengguna',
         email: (row?['email'] as String?) ?? user.email ?? '',
         phone: row?['phone'] as String?,
         avatarUrl: row?['avatar_url'] as String?,
@@ -115,9 +129,12 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserProfile>> becomeOrganizer() async {
     final user = _client?.auth.currentUser;
-    if (user == null) return const Left(UnexpectedFailure('Sesi belum tersedia.'));
+    if (user == null)
+      return const Left(UnexpectedFailure('Sesi belum tersedia.'));
     try {
-      await _client!.from('profiles').update({'role': 'organizer'}).eq('id', user.id);
+      await _client!
+          .from('profiles')
+          .update({'role': 'organizer'}).eq('id', user.id);
       return getProfile();
     } catch (error) {
       return Left(_failure(error));

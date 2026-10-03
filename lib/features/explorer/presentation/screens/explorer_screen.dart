@@ -22,11 +22,13 @@ class _ExplorerScreenState extends ConsumerState<ExplorerScreen> {
   Widget build(BuildContext context) {
     final explorerAsync = ref.watch(explorerProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Transaksi', style: TextStyle(fontWeight: FontWeight.bold))),
+      appBar: AppBar(
+          title: const Text('Riwayat Transaksi',
+              style: TextStyle(fontWeight: FontWeight.bold))),
       body: explorerAsync.when(
         loading: () => const LoadingWidget(),
         error: (err, st) => ErrorStateWidget(
-          title: 'Gagal Memuat Riwayat',
+          title: 'Gagal Memuat History Donasi',
           subtitle: err.toString(),
           onRetry: () => ref.read(explorerProvider.notifier).refresh(),
         ),
@@ -53,8 +55,11 @@ class _ExplorerScreenState extends ConsumerState<ExplorerScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('${tx.timestamp.hour}:${tx.timestamp.minute.toString().padLeft(2, '0')}'),
-                      Text('${tx.txHash.substring(0, 6)}...', style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+                      Text(
+                          '${tx.timestamp.hour}:${tx.timestamp.minute.toString().padLeft(2, '0')}'),
+                      Text('${tx.txHash.substring(0, 6)}...',
+                          style: const TextStyle(
+                              fontSize: 10, fontFamily: 'monospace')),
                     ],
                   ),
                 ),
