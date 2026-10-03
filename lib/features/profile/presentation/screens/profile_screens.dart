@@ -10,10 +10,9 @@ class ProfileScreen extends ConsumerWidget {
     final profile = ref.watch(profileProvider);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          tooltip: 'Kembali',
-          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+        automaticallyImplyLeading: false,
+        leading: BackButton(
+          onPressed: () => context.go('/'),
         ),
         title: const Text('Profil'),
       ),
