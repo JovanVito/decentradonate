@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../../core/constants/contract_constants.dart';
+import '../../../../core/constants/supabase_config.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/proof_of_impact.dart';
 import '../../domain/repositories/proof_of_impact_repository.dart';
@@ -29,7 +30,8 @@ class ProofOfImpactRepositoryImpl implements ProofOfImpactRepository {
 
       final file = File(photoPath);
       if (!await file.exists()) {
-        return const Left(IpfsFailure('File foto tidak ditemukan di perangkat.'));
+        return const Left(
+            IpfsFailure('File foto tidak ditemukan di perangkat.'));
       }
 
       final bytes = await file.readAsBytes();
@@ -73,6 +75,22 @@ class ProofOfImpactRepositoryImpl implements ProofOfImpactRepository {
       if (response.statusCode == 200) {
         final json = jsonDecode(responseBody);
         final ipfsHash = json['IpfsHash'] as String;
+        final client = supabaseClient;
+        if (client != null) {
+          final storagePath =
+              'proofs/${timestamp.millisecondsSinceEpoch}_${p.basename(photoPath)}';
+          await client.storage.from('proofs').upload(storagePath, file);
+          final photoUrl =
+              client.storage.from('proofs').getPublicUrl(storagePath);
+          await client.from('proof_of_impact').insert({
+            'photo_url': photoUrl,
+            'ipfs_hash': ipfsHash,
+            'latitude': latitude,
+            'longitude': longitude,
+            'captured_at': timestamp.toIso8601String(),
+            'user_id': client.auth.currentUser?.id,
+          });
+        }
         return Right(ipfsHash);
       } else {
         return Left(IpfsFailure(

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -28,7 +30,6 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
   }
 
   @override
@@ -44,7 +45,8 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
         await _startCameraController(cameras.first);
       }
     } on CameraException catch (e) {
-      setState(() => _cameraError = 'Gagal menginisialisasi kamera: ${e.description}');
+      setState(() =>
+          _cameraError = 'Gagal menginisialisasi kamera: ${e.description}');
     }
   }
 
@@ -65,8 +67,23 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
     }
   }
 
+  Future<void> _openCamera() async {
+    try {
+      final status = await Permission.camera.request();
+      if (!status.isGranted) {
+        setState(() => _cameraError = AppStrings.cameraPermissionDenied);
+        return;
+      }
+      final cameras = await availableCameras();
+      if (cameras.isNotEmpty) await _startCameraController(cameras.first);
+    } on CameraException catch (e) {
+      setState(() => _cameraError = 'Gagal membuka kamera: ${e.description}');
+    }
+  }
+
   Future<void> _capturePhoto() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    if (_cameraController == null || !_cameraController!.value.isInitialized)
+      return;
     setState(() => _cameraError = null);
     try {
       final image = await _cameraController!.takePicture();
@@ -149,11 +166,11 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
     });
 
     ref.read(proofOfImpactProvider.notifier).uploadProof(
-      photoPath: _capturedImage!.path,
-      latitude: _position!.latitude,
-      longitude: _position!.longitude,
-      timestamp: DateTime.now(),
-    );
+          photoPath: _capturedImage!.path,
+          latitude: _position!.latitude,
+          longitude: _position!.longitude,
+          timestamp: DateTime.now(),
+        );
 
     if (!mounted) return;
     setState(() {
@@ -177,86 +194,107 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
   @override
   Widget build(BuildContext context) {
     final proofState = ref.watch(proofOfImpactProvider);
+    final profile = ref.watch(profileProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.uploadProofTitle,
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(AppStrings.uploadProofSubtitle,
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-            const SizedBox(height: 16),
-
-            // Camera Preview / Error
-            _buildCameraSection(),
-            const SizedBox(height: 16),
-
-            // GPS Location
-            _buildLocationSection(),
-            const SizedBox(height: 16),
-
-            // Error Message
-            if (_errorMessage != null) ...[
-              _buildErrorWidget(_errorMessage!),
-              const SizedBox(height: 12),
-            ],
-
-            // IPFS Upload State
-            if (proofState is AsyncLoading) ...[
-              const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 12),
-              Text(AppStrings.preparingUpload,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textSecondary)),
-            ],
-            if (proofState is AsyncData && proofState.valueOrNull != null) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+      body: profile.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text(error.toString())),
+        data: (user) => user.isOrganizer
+            ? SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.check_circle, color: AppColors.success, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Berhasil! IPFS: ${proofState.valueOrNull!.substring(0, 12)}...',
-                        style: TextStyle(color: AppColors.success, fontSize: 12),
+                    Text(AppStrings.uploadProofSubtitle,
+                        style: TextStyle(
+                            fontSize: 13, color: AppColors.textSecondary)),
+                    const SizedBox(height: 16),
+
+                    // Camera Preview / Error
+                    _buildCameraSection(),
+                    const SizedBox(height: 16),
+
+                    // GPS Location
+                    _buildLocationSection(),
+                    const SizedBox(height: 16),
+
+                    // Error Message
+                    if (_errorMessage != null) ...[
+                      _buildErrorWidget(_errorMessage!),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // IPFS Upload State
+                    if (proofState is AsyncLoading) ...[
+                      const Center(child: CircularProgressIndicator()),
+                      const SizedBox(height: 12),
+                      Text(AppStrings.preparingUpload,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    ],
+                    if (proofState is AsyncData &&
+                        proofState.valueOrNull != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle,
+                                color: AppColors.success, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Berhasil! IPFS: ${proofState.valueOrNull!.substring(0, 12)}...',
+                                style: TextStyle(
+                                    color: AppColors.success, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 12),
+                    ],
+                    if (proofState is AsyncError) ...[
+                      _buildErrorWidget(proofState.error.toString()),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Submit Button
+                    PrimaryButton(
+                      label: _isUploading
+                          ? 'Mengunggah...'
+                          : 'Kirim Bukti ke IPFS',
+                      icon: Icons.cloud_upload_outlined,
+                      isLoading: _isUploading,
+                      onPressed: (_capturedImage != null &&
+                              _position != null &&
+                              !_isUploading)
+                          ? _submitProof
+                          : null,
                     ),
                   ],
                 ),
+              )
+            : const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text(
+                      'Fitur Proof of Impact hanya tersedia untuk penyelenggara campaign.'),
+                ),
               ),
-              const SizedBox(height: 12),
-            ],
-            if (proofState is AsyncError) ...[
-              _buildErrorWidget(proofState.error.toString()),
-              const SizedBox(height: 12),
-            ],
-
-            // Submit Button
-            PrimaryButton(
-              label: _isUploading ? 'Mengunggah...' : 'Kirim Bukti ke IPFS',
-              icon: Icons.cloud_upload_outlined,
-              isLoading: _isUploading,
-              onPressed: (_capturedImage != null && _position != null && !_isUploading)
-                  ? _submitProof
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -274,8 +312,22 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
       );
     }
 
+    if (_capturedImage != null) {
+      return Container(
+        height: 220,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
+        clipBehavior: Clip.antiAlias,
+        child: Image.file(File(_capturedImage!.path), fit: BoxFit.cover),
+      );
+    }
+
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildPermissionPlaceholder(
+        icon: Icons.camera_alt_outlined,
+        title: 'Ambil Foto Bukti',
+        subtitle: 'Tekan untuk membuka kamera',
+        onRetry: _openCamera,
+      );
     }
 
     return Stack(
@@ -292,7 +344,8 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
             child: ElevatedButton.icon(
               onPressed: _capturedImage == null ? _capturePhoto : null,
               icon: const Icon(Icons.camera_alt, color: Colors.white),
-              label: Text(_capturedImage == null ? 'Ambil Foto' : 'Ambil Ulang'),
+              label:
+                  Text(_capturedImage == null ? 'Ambil Foto' : 'Ambil Ulang'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _capturedImage != null
                     ? AppColors.primary.withValues(alpha: 0.6)
@@ -300,7 +353,8 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
             ),
           ),
@@ -315,7 +369,8 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
                 color: AppColors.success,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text('✓', style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text('✓',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ),
       ],
@@ -323,7 +378,9 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
   }
 
   Widget _buildLocationSection() {
-    if (_errorMessage != null && _errorMessage!.toLowerCase().contains('lokasi') && _position == null) {
+    if (_errorMessage != null &&
+        _errorMessage!.toLowerCase().contains('lokasi') &&
+        _position == null) {
       return _buildPermissionPlaceholder(
         icon: Icons.location_on_outlined,
         title: 'Lokasi GPS',
@@ -351,7 +408,8 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
       onRetry: _position == null ? _getCurrentLocation : null,
       child: _position != null
           ? const Icon(Icons.location_on, color: AppColors.success, size: 32)
-          : const Icon(Icons.my_location_outlined, color: AppColors.primary, size: 32),
+          : const Icon(Icons.my_location_outlined,
+              color: AppColors.primary, size: 32),
     );
   }
 
@@ -391,10 +449,12 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(title,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(subtitle,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -411,7 +471,9 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
     return Container(
       height: 100,
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), style: BorderStyle.solid),
+        border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            style: BorderStyle.solid),
         borderRadius: BorderRadius.circular(14),
         color: AppColors.primary.withValues(alpha: 0.04),
       ),
@@ -421,10 +483,13 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
           SizedBox(
             width: 24,
             height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+            child: CircularProgressIndicator(
+                strokeWidth: 2.5, color: AppColors.primary),
           ),
           const SizedBox(width: 16),
-          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -442,7 +507,8 @@ class _UploadProofScreenState extends ConsumerState<UploadProofScreen> {
           Icon(Icons.error_outline, color: AppColors.error, size: 20),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(message, style: const TextStyle(fontSize: 12, color: AppColors.error)),
+            child: Text(message,
+                style: const TextStyle(fontSize: 12, color: AppColors.error)),
           ),
           IconButton(
             icon: const Icon(Icons.close, size: 18, color: AppColors.error),
