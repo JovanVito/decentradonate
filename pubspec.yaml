@@ -13,6 +13,7 @@ dependencies:
   # --- State Management ---
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
+  supabase_flutter: ^2.8.0
 
   # --- Routing ---
   go_router: ^14.2.0
