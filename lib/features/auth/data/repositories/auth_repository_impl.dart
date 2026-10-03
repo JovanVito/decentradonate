@@ -35,13 +35,6 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       final user = response.user;
       if (user == null) return const Left(UnexpectedFailure('Signup gagal.'));
-      if (response.session != null) {
-        await _client!.from('profiles').insert({
-          'id': user.id,
-          'username': username,
-          'email': email,
-        });
-      }
       return Right(UserProfile(
         id: user.id,
         username: username,

@@ -43,6 +43,38 @@ Untuk membuat profile otomatis setelah signup, tambahkan trigger pada
 `auth.users`, atau lakukan insert profile dari Edge Function. Service role
 key tidak boleh dimasukkan ke aplikasi Flutter.
 
+## Trigger Profile Otomatis
+
+Gunakan trigger berikut agar setiap akun baru otomatis memiliki baris profile,
+termasuk ketika konfirmasi email masih aktif dan session belum tersedia di aplikasi.
+
+```sql
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, username, email)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data ->> 'username', split_part(new.email, '@', 1)),
+    new.email
+  );
+  return new;
+end;
+$$;
+
+create or replace trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+```
+
+Jalankan SQL ini sekali di Supabase SQL Editor. Jangan membuat trigger kedua
+dengan nama sama. Untuk mengatasi email rate limit, gunakan custom SMTP di
+Authentication → SMTP Settings. Untuk testing lokal, Confirm email boleh
+dimatikan sementara; untuk demo publik, gunakan SMTP dan aktifkan kembali.
+
 ## Konfigurasi Flutter
 
 Jalankan aplikasi dengan dua nilai konfigurasi:
