@@ -18,7 +18,8 @@ class CampaignDetailScreen extends ConsumerWidget {
   final Campaign? campaign;
   final String campaignId;
 
-  const CampaignDetailScreen({super.key, required this.campaignId, this.campaign});
+  const CampaignDetailScreen(
+      {super.key, required this.campaignId, this.campaign});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +29,8 @@ class CampaignDetailScreen extends ConsumerWidget {
       // Placeholder Stage 1: harusnya di Stage 2 ini memicu fetch by ID.
       return Scaffold(
         appBar: AppBar(title: Text('Kampanye #$campaignId')),
-        body: const Center(child: Text('Detail tidak ditemukan (belum fetch by ID).')),
+        body: const Center(
+            child: Text('Detail tidak ditemukan (belum fetch by ID).')),
       );
     }
 
@@ -39,23 +41,44 @@ class CampaignDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: SizedBox(
+                height: 180,
+                width: double.infinity,
+                child: c.imageUrl == null
+                    ? Container(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.volunteer_activism_rounded,
+                            size: 56,
+                            color: AppColors.primary.withValues(alpha: 0.6)),
+                      )
+                    : Image(
+                        image: c.imageUrl!.startsWith('http')
+                            ? NetworkImage(c.imageUrl!)
+                            : AssetImage(c.imageUrl!) as ImageProvider,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          alignment: Alignment.center,
+                          child: Icon(Icons.volunteer_activism_rounded,
+                              size: 56,
+                              color: AppColors.primary.withValues(alpha: 0.6)),
+                        ),
+                      ),
               ),
-              alignment: Alignment.center,
-              child: Icon(Icons.volunteer_activism_rounded,
-                  size: 56, color: AppColors.primary.withOpacity(0.6)),
             ),
             const SizedBox(height: 16),
             Text(c.title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary)),
             const SizedBox(height: 6),
             Text('Organizer: ${c.organizer}',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                style: const TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary)),
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -67,12 +90,17 @@ class CampaignDetailScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text('${c.collectedAmount} ETH terkumpul dari target ${c.targetAmount} ETH',
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            Text(
+                '${c.collectedAmount} ETH terkumpul dari target ${c.targetAmount} ETH',
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary)),
             const SizedBox(height: 20),
-            const Text('Deskripsi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            const Text('Deskripsi',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            Text(c.description, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, height: 1.5)),
+            Text(c.description,
+                style: const TextStyle(
+                    fontSize: 14, color: AppColors.textPrimary, height: 1.5)),
             const SizedBox(height: 32),
             PrimaryButton(
               label: 'Donasi Sekarang',
