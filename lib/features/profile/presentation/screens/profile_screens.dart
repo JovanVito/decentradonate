@@ -18,7 +18,21 @@ class ProfileScreen extends ConsumerWidget {
       ),
       body: profile.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text(error.toString())),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(error.toString()),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                  onPressed: () => context.push('/login'),
+                  child: const Text('Login')),
+              TextButton(
+                  onPressed: () => context.push('/signup'),
+                  child: const Text('Signup')),
+            ],
+          ),
+        ),
         data: (user) => ListView(padding: const EdgeInsets.all(20), children: [
           const CircleAvatar(radius: 44, child: Icon(Icons.person, size: 44)),
           const SizedBox(height: 16),

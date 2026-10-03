@@ -118,8 +118,13 @@ class AuthRepositoryImpl implements AuthRepository {
         avatarUrl: row?['avatar_url'] as String?,
         role: (row?['role'] as String?) ?? 'donatur',
       ));
-    } catch (error) {
-      return Left(_failure(error));
+    } catch (_) {
+      return Right(UserProfile(
+        id: user.id,
+        username: (user.userMetadata?['username'] as String?) ?? 'Pengguna',
+        email: user.email ?? '',
+        phone: user.phone,
+      ));
     }
   }
 
