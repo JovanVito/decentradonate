@@ -1,7 +1,6 @@
 # Decentradonate
 
-Aplikasi donasi mikro terdesentralisasi (Flutter + Polygon Amoy Testnet)
-dengan Proof-of-Impact via Kamera, GPS, dan IPFS.
+Aplikasi donasi mikro berbasis Flutter dengan arsitektur hybrid: transaksi dan donasi dicatat melalui blockchain, sedangkan akun, profil, role organizer, dan metadata pendukung dikelola melalui Supabase. Aplikasi juga memiliki Proof-of-Impact via kamera, GPS, IPFS, dan Supabase Storage.
 
 ---
 
@@ -77,15 +76,11 @@ Harden → Release):
 3. **Donasi On-Chain** — transfer MATIC (testnet) ke kampanye pilihan
    lewat smart contract, dengan status transaksi (pending/sukses/gagal)
    ditampilkan jelas ke pengguna.
-4. **Proof-of-Impact** — organizer mengambil foto + menandai lokasi GPS
-   sebagai bukti penggunaan dana, diunggah ke IPFS.
-5. **Riwayat Transaksi** — daftar donasi yang pernah dilakukan/diterima,
-   diambil dari event on-chain.
-6. **Loading, Empty, dan Error State** di setiap alur utama — termasuk
-   penanganan kondisi jaringan lambat/terputus dan konfigurasi yang
-   belum lengkap, tanpa fatal crash.
-7. **APK Rilis** — dapat diinstal dan didemonstrasikan di perangkat
-   Android fisik.
+4. **Login, Signup, Profile, dan Organizer Role** — akun dikelola melalui Supabase Auth, profile menyimpan username, email, nomor handphone, foto, dan role.
+5. **Proof-of-Impact** — hanya organizer yang dapat mengambil foto + menandai lokasi GPS sebagai bukti penggunaan dana, lalu menyimpannya ke IPFS dan Supabase Storage.
+6. **Riwayat Transaksi** — daftar donasi yang pernah dilakukan/diterima, diambil dari event on-chain.
+7. **Loading, Empty, dan Error State** di setiap alur utama — termasuk penanganan kondisi jaringan lambat/terputus dan konfigurasi yang belum lengkap, tanpa fatal crash.
+8. **APK Rilis** — dapat diinstal dan didemonstrasikan di perangkat Android fisik.
 
 ---
 
@@ -94,15 +89,13 @@ Harden → Release):
 Ditetapkan secara sadar di awal supaya scope tetap realistis untuk 12
 minggu pengerjaan solo/tim kecil:
 
-- **Tidak ada backend/server custom.** Seluruh data bersumber dari
-  blockchain (on-chain) dan IPFS — tidak ada REST API atau database
-  server yang dikelola sendiri.
+- **Tidak ada backend custom milik sendiri.** Backend yang digunakan adalah layanan terkelola Supabase untuk Auth, Profile, role organizer, dan Storage. Data transaksi donasi tetap bersumber dari blockchain dan IPFS.
 - **Tidak ada derivasi wallet BIP-44 penuh** yang kompatibel dengan
   MetaMask/Trust Wallet — wallet dibuat dan dipakai sepenuhnya mandiri
   di dalam aplikasi ini.
 - **Tidak ada dukungan mainnet/produksi.** Aplikasi tetap berjalan di
   Polygon Amoy Testnet selama masa pengembangan dan demo.
-- **Tidak ada sistem KYC/verifikasi identitas** organizer maupun donatur.
+- **Tidak ada sistem KYC resmi.** Organizer memiliki role dan persetujuan syarat penggunaan, tetapi belum ada verifikasi identitas legal seperti KTP atau approval admin.
 - **Tidak ada mekanisme approval/withdrawal request** — donasi
   diteruskan otomatis dan langsung oleh smart contract ke organizer.
 - **Tidak ada dukungan multi-token/multi-currency** — hanya native
