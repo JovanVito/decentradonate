@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../providers/donation_providers.dart';
@@ -47,7 +48,8 @@ class DonateBottomSheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => DonateBottomSheet(campaignId: campaignId, campaignTitle: campaignTitle),
+      builder: (_) => DonateBottomSheet(
+          campaignId: campaignId, campaignTitle: campaignTitle),
     );
   }
 
@@ -67,8 +69,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
 
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    final amount =
-        double.parse(_controller.text.trim().replaceAll(',', '.'));
+    final amount = double.parse(_controller.text.trim().replaceAll(',', '.'));
     ref.read(donationProvider.notifier).donate(
           campaignId: widget.campaignId,
           amountInMatic: amount,
@@ -104,9 +105,37 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
             const Text('Donasi untuk',
                 style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
             Text(widget.campaignTitle,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+                style: GoogleFonts.fraunces(
+                    fontSize: 17, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 14),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final preset in ['0.01', '0.05', '0.1', '0.5'])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ChoiceChip(
+                        label: Text(preset),
+                        selected: _controller.text == preset,
+                        onSelected: (_) =>
+                            setState(() => _controller.text = preset),
+                        selectedColor: AppColors.ink,
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: AppColors.paperDeep),
+                        labelStyle: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _controller.text == preset
+                              ? Colors.white
+                              : AppColors.ink,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
             TextFormField(
               controller: _controller,
               keyboardType:
@@ -115,7 +144,6 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
               validator: validateDonationAmount,
               decoration: const InputDecoration(
                 labelText: 'Nominal',
-                border: OutlineInputBorder(),
                 suffixText: 'MATIC',
               ),
             ),
@@ -123,8 +151,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
               const SizedBox(height: 10),
               Text(
                 donationState.error.toString().replaceFirst('Exception: ', ''),
-                style:
-                    const TextStyle(fontSize: 12, color: AppColors.error),
+                style: const TextStyle(fontSize: 12, color: AppColors.error),
               ),
             ],
             const SizedBox(height: 16),
@@ -173,8 +200,7 @@ class _DonateBottomSheetState extends ConsumerState<DonateBottomSheet> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Tutup')),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Tutup')),
         ],
       ),
     );

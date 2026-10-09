@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
@@ -28,7 +29,8 @@ class WalletScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.walletTitle, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(AppStrings.walletTitle,
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: walletAsync.when(
         loading: () => const LoadingWidget(),
@@ -67,7 +69,8 @@ class _NoWalletView extends StatelessWidget {
             label: AppStrings.createWallet,
             icon: Icons.add_circle_outline,
             onPressed: () async {
-              final mnemonic = await ref.read(walletProvider.notifier).createWallet();
+              final mnemonic =
+                  await ref.read(walletProvider.notifier).createWallet();
               if (mnemonic != null && context.mounted) {
                 context.push('/wallet/backup', extra: mnemonic);
               }
@@ -80,11 +83,13 @@ class _NoWalletView extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => context.push('/wallet/import'),
             icon: const Icon(Icons.download_outlined, color: AppColors.primary),
-            label: const Text(AppStrings.importWallet, style: TextStyle(color: AppColors.primary)),
+            label: const Text(AppStrings.importWallet,
+                style: TextStyle(color: AppColors.primary)),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
               side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ],
@@ -106,27 +111,38 @@ class _HasWalletView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text('Buku kas\nmilikmu.',
+              style: GoogleFonts.fraunces(
+                  fontSize: 26, height: 1.05, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 12),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Alamat Wallet', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  const Text('Alamat Wallet',
+                      style: TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary)),
                   const SizedBox(height: 6),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           wallet.address,
-                          style: const TextStyle(fontSize: 13, fontFamily: 'monospace', fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.w600),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy_rounded, size: 20, color: AppColors.primary),
+                        icon: const Icon(Icons.copy_rounded,
+                            size: 20, color: AppColors.primary),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: wallet.address));
+                          Clipboard.setData(
+                              ClipboardData(text: wallet.address));
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Alamat disalin')),
                           );
@@ -138,16 +154,21 @@ class _HasWalletView extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Saldo', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      const Text('Saldo',
+                          style: TextStyle(
+                              fontSize: 12, color: AppColors.textSecondary)),
                       InkWell(
                         onTap: () => ref.invalidate(walletBalanceProvider),
                         child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
                           child: Row(
                             children: [
-                              Icon(Icons.refresh_rounded, size: 14, color: AppColors.primary),
+                              Icon(Icons.refresh_rounded,
+                                  size: 14, color: AppColors.primary),
                               SizedBox(width: 4),
-                              Text('Refresh', style: TextStyle(fontSize: 11, color: AppColors.primary)),
+                              Text('Refresh',
+                                  style: TextStyle(
+                                      fontSize: 11, color: AppColors.primary)),
                             ],
                           ),
                         ),
@@ -166,9 +187,13 @@ class _HasWalletView extends ConsumerWidget {
                     ),
                     data: (balance) => Text(
                       '${balance.toStringAsFixed(4)} MATIC',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary),
                     ),
-                    error: (err, st) => _BalanceErrorNote(message: err.toString()),
+                    error: (err, st) =>
+                        _BalanceErrorNote(message: err.toString()),
                   ),
                 ],
               ),
@@ -178,11 +203,13 @@ class _HasWalletView extends ConsumerWidget {
           OutlinedButton.icon(
             onPressed: () => _confirmDelete(context, ref),
             icon: const Icon(Icons.logout_rounded, color: AppColors.error),
-            label: const Text('Hapus Wallet dari Perangkat Ini', style: TextStyle(color: AppColors.error)),
+            label: const Text('Hapus Wallet dari Perangkat Ini',
+                style: TextStyle(color: AppColors.error)),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
               side: const BorderSide(color: AppColors.error),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ],
@@ -200,13 +227,15 @@ class _HasWalletView extends ConsumerWidget {
           'Tanpa seed phrase, wallet ini TIDAK BISA dipulihkan.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               ref.read(walletProvider.notifier).deleteWallet();
             },
-            child: const Text('Hapus', style: TextStyle(color: AppColors.error)),
+            child:
+                const Text('Hapus', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -230,13 +259,19 @@ class _BalanceErrorNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isConfigIssue = message.contains('belum dikonfigurasi') || message.contains('placeholder');
+    final isConfigIssue = message.contains('belum dikonfigurasi') ||
+        message.contains('placeholder');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isConfigIssue ? 'Konfigurasi Blockchain Belum Lengkap' : 'Gagal Memuat Saldo',
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.error),
+          isConfigIssue
+              ? 'Konfigurasi Blockchain Belum Lengkap'
+              : 'Gagal Memuat Saldo',
+          style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.error),
         ),
         const SizedBox(height: 2),
         Text(

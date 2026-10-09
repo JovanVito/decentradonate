@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/ripple_ring.dart';
 import '../../domain/entities/campaign.dart';
 
+/// Kartu kampanye gaya "Riak": cincin riak sebagai progres,
+/// judul serif, dan stempel bukti dampak.
 class CampaignCard extends StatelessWidget {
   final Campaign campaign;
   final VoidCallback onTap;
@@ -10,93 +14,100 @@ class CampaignCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImage(context),
-              const SizedBox(height: 12),
-              Text(
-                campaign.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: campaign.progressPercent,
-                  minHeight: 6,
-                  backgroundColor: AppColors.background,
-                  color: AppColors.secondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${campaign.collectedAmount.toStringAsFixed(2)} / ${campaign.targetAmount.toStringAsFixed(2)} ETH',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                  Text('${(campaign.progressPercent * 100).toStringAsFixed(0)}%',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondary)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImage(BuildContext context) {
-    if (campaign.imageUrl == null) {
-      return Container(
-        height: 120,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.center,
-        child: Icon(Icons.volunteer_activism_rounded, size: 40, color: AppColors.primary.withValues(alpha: 0.6)),
-      );
-    }
-
     return Container(
-      height: 120,
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        image: DecorationImage(
-          image: AssetImage(campaign.imageUrl!),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.transparent, Colors.black54],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.ink.withValues(alpha: 0.08),
+            offset: const Offset(0, 2),
           ),
-        ),
-        alignment: Alignment.bottomLeft,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text(
-            campaign.title,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                RippleRing(percent: campaign.progressPercent, size: 54),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        campaign.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.fraunces(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          height: 1.15,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Terkumpul ${_fmt(campaign.collectedAmount)} / ${_fmt(campaign.targetAmount)} MATIC',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.check_circle,
+                              size: 12, color: AppColors.verifiedText),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${(campaign.progressPercent * 100).toStringAsFixed(0)}% tercapai',
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.verifiedText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (campaign.imageUrl != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Image(
+                      image: campaign.imageUrl!.startsWith('http')
+                          ? NetworkImage(campaign.imageUrl!) as ImageProvider
+                          : AssetImage(campaign.imageUrl!),
+                      width: 58,
+                      height: 58,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 58,
+                        height: 58,
+                        color: AppColors.paperDeep,
+                        child: const Icon(Icons.volunteer_activism_rounded,
+                            color: AppColors.ripple),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  static String _fmt(double value) =>
+      value.toStringAsFixed(2).replaceAll('.', ',');
 }

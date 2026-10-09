@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decentradonate — Konsep Desain "Riak"</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{--pg:#EDE6D6;--pg-t:#1B2A24;--pg-s:#5c6a62;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pg:#0b1310;--pg-t:#F6F1E7;--pg-s:#9fb0a6}}
+:root[data-theme="dark"]{--pg:#0b1310;--pg-t:#F6F1E7;--pg-s:#9fb0a6}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--pg);color:var(--pg-t);font-family:'DM Sans',system-ui,sans-serif;padding:32px 16px 56px}
+h1,h2,h3,.f{font-family:'Fraunces',Georgia,serif}
+header{max-width:1200px;margin:0 auto 28px}
+header h1{font-size:clamp(32px,6vw,56px);line-height:1;font-weight:800}
+header h1 em{color:#FF6B3D;font-style:normal}
+header p{max-width:620px;margin-top:12px;color:var(--pg-s);line-height:1.55}
+.pal{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.pal span{font-size:12px;padding:6px 10px;border-radius:99px;color:#fff;font-weight:500}
+.row{max-width:1200px;margin:0 auto;display:flex;gap:28px;overflow-x:auto;padding:8px 4px 20px;scroll-snap-type:x mandatory}
+.col{flex:0 0 auto;scroll-snap-align:start}
+.cap{font-size:13px;color:var(--pg-s);margin:0 0 10px 6px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+/* phone */
+.ph{width:300px;height:620px;border-radius:38px;background:#F6F1E7;border:8px solid #16231D;position:relative;overflow:hidden;color:#16231D;box-shadow:0 18px 40px rgba(0,0,0,.25);display:flex;flex-direction:column}
+.sb{display:flex;justify-content:space-between;padding:10px 20px 4px;font-size:11px;font-weight:700}
+.sc{flex:1;overflow:hidden;padding:6px 16px 0}
+.nav{display:flex;justify-content:space-around;padding:10px 6px 14px;background:#16231D;margin:0 10px 10px;border-radius:22px}
+.nav i{font-style:normal;font-size:10px;color:#9fb0a6;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;border-radius:14px}
+.nav i b{font-size:15px;font-weight:400}
+.nav i.on{background:#FF6B3D;color:#fff}
+.hello{font-size:12px;color:#5c6a62}
+.big{font-size:26px;line-height:1.05;font-weight:800;margin:4px 0 12px}
+.big em{color:#FF6B3D;font-style:normal}
+.hero{background:#16231D;color:#F6F1E7;border-radius:24px;padding:16px;position:relative;overflow:hidden;margin-bottom:12px}
+.hero svg{position:absolute;right:-30px;top:-30px}
+.hero small{color:#7fe3b2;font-size:11px;font-weight:700}
+.hero h3{font-size:19px;margin:6px 0 4px;max-width:170px;line-height:1.1}
+.hero p{font-size:11px;color:#b9c7be;max-width:170px}
+.chips{display:flex;gap:6px;margin-bottom:10px}
+.chip{font-size:11px;padding:5px 10px;border-radius:99px;border:1.5px solid #16231D;font-weight:500;white-space:nowrap}
+.chip.on{background:#16231D;color:#F6F1E7}
+.card{background:#fff;border-radius:20px;padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:9px;box-shadow:0 2px 0 rgba(22,35,29,.08)}
+.card h4{font-size:13px;line-height:1.2;font-family:'Fraunces',serif;font-weight:600}
+.card p{font-size:10.5px;color:#5c6a62;margin-top:3px}
+.v{display:inline-flex;gap:4px;align-items:center;font-size:10px;font-weight:700;color:#0d8a58;margin-top:4px}
+.ring{--p:60;width:54px;height:54px;border-radius:50%;flex:none;background:conic-gradient(#FF6B3D calc(var(--p)*1%),#eadfc9 0);display:grid;place-items:center;position:relative}
+.ring::after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+.ring b{position:relative;z-index:1;font-size:11px}
+.ring.big2{width:120px;height:120px;background:conic-gradient(#FF6B3D calc(var(--p)*1%),#e6dcc6 0)}
+.ring.big2::after{inset:11px;background:#F6F1E7}
+.ring.big2 b{font-size:26px;font-family:'Fraunces',serif}
+.btn{background:#FF6B3D;color:#fff;border-radius:16px;text-align:center;padding:13px;font-weight:700;font-size:13px;box-shadow:0 4px 0 #c24a22}
+.btn.dk{background:#16231D;box-shadow:0 4px 0 #000}
+.amt{display:flex;gap:6px;margin:10px 0}
+.amt span{flex:1;text-align:center;padding:9px 0;border-radius:12px;background:#fff;font-size:11px;font-weight:700;border:1.5px solid #e2d7bf}
+.amt span.on{background:#16231D;color:#fff;border-color:#16231D}
+.tl{border-left:2px dashed #c9bd9f;margin:8px 0 10px 8px;padding-left:14px}
+.st{position:relative;background:#fff;border-radius:14px;padding:9px 10px;margin-bottom:8px;font-size:10.5px;line-height:1.35}
+.st::before{content:"";position:absolute;left:-22px;top:12px;width:12px;height:12px;border-radius:50%;background:#3DDC97;border:3px solid #F6F1E7}
+.st b{display:block;font-size:11.5px}
+.st code{font-size:9.5px;color:#0d8a58;background:#e3f7ec;padding:1px 5px;border-radius:6px}
+.wc{background:linear-gradient(135deg,#16231D,#26453a);color:#F6F1E7;border-radius:24px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.wc small{font-size:10px;color:#7fe3b2;font-weight:700;letter-spacing:.06em}
+.wc .n{font-family:'Fraunces',serif;font-size:32px;font-weight:800;margin:6px 0}
+.wc .a{font-size:11px;background:rgba(255,255,255,.1);display:inline-block;padding:4px 9px;border-radius:99px}
+.lg{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed #cfc3a7;font-size:11px}
+.lg b{font-size:12px}
+.vf{background:#222;border-radius:22px;height:230px;position:relative;overflow:hidden;margin-bottom:12px;background-image:radial-gradient(circle at 30% 35%,#4a6b5a,#1b2a24 70%)}
+.vf::before,.vf::after{content:"";position:absolute;left:18px;right:18px;border:0 solid #fff;opacity:.5}
+.vf::before{top:50%;border-top-width:1px}.vf::after{top:18px;bottom:18px;left:50%;right:auto;border-left-width:1px}
+.corner{position:absolute;width:26px;height:26px;border:3px solid #FF6B3D}
+.corner.a{top:14px;left:14px;border-right:0;border-bottom:0;border-radius:10px 0 0 0}.corner.b{top:14px;right:14px;border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+.corner.c{bottom:14px;left:14px;border-right:0;border-top:0;border-radius:0 0 0 10px}.corner.d{bottom:14px;right:14px;border-left:0;border-top:0;border-radius:0 0 10px 0}
+.gps{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#7fe3b2;font-size:10px;padding:4px 10px;border-radius:99px;white-space:nowrap;font-weight:700}
+.shut{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px;border-radius:50%;border:4px solid #fff;opacity:.9}
+.step{display:flex;gap:10px;align-items:center;font-size:11px;padding:7px 0}
+.step i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#3DDC97;color:#06361f;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.step i.w{background:#eadfc9;color:#5c6a62}
+.step code{font-size:9.5px;background:#fff;padding:2px 6px;border-radius:6px}
+.notes{max-width:1200px;margin:24px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.notes div{background:rgba(127,127,127,.12);border-radius:16px;padding:16px;font-size:14px;line-height:1.5}
+.notes h3{font-size:18px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<header>
+<h1>Decentradonate <em>"Riak"</em></h1>
+<p>Konsep visual baru: donasi kecil adalah batu yang dijatuhkan ke air — efeknya menyebar. Identitasnya memakai <b>cincin riak</b> sebagai progres, gaya <b>buku kas / kuitansi</b> untuk transparansi blockchain, dan <b>stempel verifikasi</b> untuk Proof-of-Impact (foto + GPS + IPFS).</p>
+<div class="pal">
+<span style="background:#16231D">Tinta Hutan #16231D</span>
+<span style="background:#FF6B3D">Saga Riak #FF6B3D</span>
+<span style="background:#0d8a58">Terverifikasi #3DDC97</span>
+<span style="background:#b59a62">Kertas Kas #F6F1E7</span>
+<span style="background:#555">Fraunces + DM Sans</span>
+</div>
+</header>
+
+<div class="row">
+<!-- HOME -->
+<div class="col"><div class="cap">1 · Beranda</div>
+<div class="ph"><div class="sb"><span>9:41</span><span>Amoy ●</span></div>
+<div class="sc">
+<div class="hello">Selamat pagi 👋</div>
+<div class="big f">Receh kecil,<br><em>riak besar.</em></div>
+<div class="hero">
+<svg width="150" height="150" viewBox="0 0 150 150" fill="none" stroke="#3DDC97"><circle cx="75" cy="75" r="14" stroke-opacity=".9"/><circle cx="75" cy="75" r="32" stroke-opacity=".6"/><circle cx="75" cy="75" r="52" stroke-opacity=".35"/><circle cx="75" cy="75" r="72" stroke-opacity=".15"/></svg>
+<small>● 1.284 DAMPAK TERBUKTI</small>
+<h3 class="f">Mulai dari Rp 5.000</h3>
+<p>Setiap donasi tercatat di blockchain &amp; dibuktikan lewat foto + lokasi.</p>
+</div>
+<div class="chips"><span class="chip on">Semua</span><span class="chip">Air</span><span class="chip">Pendidikan</span><span class="chip">Pangan</span></div>
+<div class="card"><div class="ring" style="--p:72"><b>72%</b></div><div><h4>Sumur Bersih Desa Cibeo</h4><p>Terkumpul 3,6 / 5 MATIC</p><span class="v">✓ 4 bukti dampak</span></div></div>
+<div class="card"><div class="ring" style="--p:38"><b>38%</b></div><div><h4>Buku untuk Taman Baca</h4><p>Terkumpul 1,1 / 3 MATIC</p><span class="v">✓ 2 bukti dampak</span></div></div>
+<div class="card"><div class="ring" style="--p:91"><b>91%</b></div><div><h4>Pangan Warga Lansia</h4><p>Hampir tercapai!</p><span class="v">✓ 7 bukti dampak</span></div></div>
+</div>
+<div class="nav"><i class="on"><b>◉</b>Beranda</i><i><b>✦</b>Kampanye</i><i><b>◈</b>Wallet</i><i><b>⌖</b>Bukti</i></div></div></div>
+
+<!-- DETAIL -->
+<div class="col"><div class="cap">2 · Detail Kampanye</div>
+<div class="ph"><div class="sb"><span>9:41</span><span>Amoy ●</span></div>
+<div class="sc">
+<div style="display:flex;gap:14px;align-items:center;margin:4px 0 10px">
+<div class="ring big2" style="--p:72"><b>72%</b></div>
+<div><div class="hello">Terkumpul</div><div class="f" style="font-size:22px;font-weight:800">3,6 MATIC</div><div class="hello">dari 5 MATIC · 41 donatur</div></div></div>
+<h3 class="f" style="font-size:17px;line-height:1.15">Sumur Bersih Desa Cibeo</h3>
+<div class="amt"><span>0,01</span><span class="on">0,05</span><span>0,1</span><span>Lain</span></div>
+<div class="btn">Donasi lewat Wallet →</div>
+<div class="cap" style="margin:14px 0 4px">Jejak Dampak</div>
+<div class="tl">
+<div class="st"><b>Pengeboran dimulai ✓</b>-6.17, 106.63 · 12 Sep<br><code>ipfs://bafy…q3x</code></div>
+<div class="st"><b>Pipa terpasang ✓</b>Foto + GPS cocok<br><code>0x9c1…e07</code></div>
+</div></div>
+<div class="nav"><i><b>◉</b>Beranda</i><i class="on"><b>✦</b>Kampanye</i><i><b>◈</b>Wallet</i><i><b>⌖</b>Bukti</i></div></div></div>
+
+<!-- WALLET -->
+<div class="col"><div class="cap">3 · Wallet</div>
+<div class="ph"><div class="sb"><span>9:41</span><span>Amoy ●</span></div>
+<div class="sc">
+<div class="big f" style="margin-top:6px">Buku kas<br><em>milikmu.</em></div>
+<div class="wc">
+<svg width="120" height="120" viewBox="0 0 150 150" fill="none" stroke="#3DDC97" style="position:absolute;right:-30px;top:-30px;opacity:.5"><circle cx="75" cy="75" r="20"/><circle cx="75" cy="75" r="45"/><circle cx="75" cy="75" r="70"/></svg>
+<small>SALDO · POLYGON AMOY</small><div class="n">0,842 MATIC</div><span class="a">0x7a3b…f91c ⧉</span></div>
+<div style="display:flex;gap:8px;margin-bottom:10px"><div class="btn" style="flex:1;padding:10px">Terima</div><div class="btn dk" style="flex:1;padding:10px">Kirim</div></div>
+<div class="cap" style="margin:6px 0 2px">Riwayat</div>
+<div class="lg"><div><b>Sumur Bersih Cibeo</b><br><span class="hello">12 Sep · tx 0x9c1…e07</span></div><b style="color:#c24a22">−0,05</b></div>
+<div class="lg"><div><b>Buku Taman Baca</b><br><span class="hello">8 Sep · tx 0x44a…b12</span></div><b style="color:#c24a22">−0,02</b></div>
+<div class="lg"><div><b>Faucet Amoy</b><br><span class="hello">1 Sep</span></div><b style="color:#0d8a58">+1,00</b></div>
+</div>
+<div class="nav"><i><b>◉</b>Beranda</i><i><b>✦</b>Kampanye</i><i class="on"><b>◈</b>Wallet</i><i><b>⌖</b>Bukti</i></div></div></div>
+
+<!-- UPLOAD -->
+<div class="col"><div class="cap">4 · Upload Bukti</div>
+<div class="ph"><div class="sb"><span>9:41</span><span>Amoy ●</span></div>
+<div class="sc">
+<div class="hello">Proof-of-Impact</div>
+<div class="big f" style="font-size:22px">Tunjukkan <em>dampaknya.</em></div>
+<div class="vf"><span class="corner a"></span><span class="corner b"></span><span class="corner c"></span><span class="corner d"></span><span class="shut"></span><span class="gps">⌖ -6.1751, 106.6310 · ±4m</span></div>
+<div class="step"><i>✓</i>Foto diambil dari kamera</div>
+<div class="step"><i>✓</i>Lokasi GPS terkunci</div>
+<div class="step"><i class="w">3</i><div>Pin ke IPFS<br><code>bafybei…pending</code></div></div>
+<div class="btn" style="margin-top:8px">Kirim Bukti &amp; Stempel ✦</div>
+</div>
+<div class="nav"><i><b>◉</b>Beranda</i><i><b>✦</b>Kampanye</i><i><b>◈</b>Wallet</i><i class="on"><b>⌖</b>Bukti</i></div></div></div>
+</div>
+
+<div class="notes">
+<div><h3>Kenapa unik?</h3>Kebanyakan app donasi memakai hati &amp; biru-hijau generik. Di sini progres berbentuk riak air, dan blockchain "diterjemahkan" jadi buku kas hangat yang mudah dipahami orang awam.</div>
+<div><h3>Cocok untuk Flutter</h3>Cincin progres = <code>CustomPainter</code>, kartu = <code>Card</code> radius 20, tombol 3D = <code>BoxShadow</code> offset 0,4. Warna cukup 5 token di <code>ThemeData</code>.</div>
+<div><h3>Tahap berikutnya</h3>Stage 3 (kamera/GPS/IPFS) sudah punya tempatnya di layar Bukti. Animasi riak bisa muncul saat donasi sukses.</div>
+</div>
+</body>
+</html>

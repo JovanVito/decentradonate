@@ -10,6 +10,6 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: DecentradonateApp()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Kampanye Donasi'), findsOneWidget);
+    expect(find.text('Selamat datang'), findsOneWidget);
   });
 }

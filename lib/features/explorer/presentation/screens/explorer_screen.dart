@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -46,22 +47,39 @@ class _ExplorerScreenState extends ConsumerState<ExplorerScreen> {
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final tx = transactions[index];
-              return Card(
-                child: ListTile(
-                  leading: CircleAvatar(child: Text('${tx.campaignId}')),
-                  title: Text('Campaign #${tx.campaignId}'),
-                  subtitle: Text('${tx.amount.toStringAsFixed(4)} MATIC'),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                          '${tx.timestamp.hour}:${tx.timestamp.minute.toString().padLeft(2, '0')}'),
-                      Text('${tx.txHash.substring(0, 6)}...',
-                          style: const TextStyle(
-                              fontSize: 10, fontFamily: 'monospace')),
-                    ],
-                  ),
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Kampanye #${tx.campaignId}',
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${tx.timestamp.hour}:${tx.timestamp.minute.toString().padLeft(2, '0')} · tx ${tx.txHash.substring(0, 6)}…',
+                            style: const TextStyle(
+                                fontSize: 10.5, color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '−${tx.amount.toStringAsFixed(4)}',
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.error),
+                    ),
+                  ],
                 ),
               );
             },
