@@ -11,6 +11,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../domain/entities/wallet_info.dart';
 import '../providers/wallet_providers.dart';
+import '../widgets/contact_section.dart';
 
 /// Halaman Wallet — SEKARANG SUDAH NYATA, bukan dummy Stage 1 lagi.
 ///
@@ -57,6 +58,7 @@ class _NoWalletView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Expanded(
             child: EmptyStateWidget(
@@ -65,6 +67,8 @@ class _NoWalletView extends StatelessWidget {
               icon: Icons.account_balance_wallet_outlined,
             ),
           ),
+          const ContactSection(),
+          const SizedBox(height: 16),
           PrimaryButton(
             label: AppStrings.createWallet,
             icon: Icons.add_circle_outline,
@@ -199,6 +203,8 @@ class _HasWalletView extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          const ContactSection(),
           const Spacer(),
           OutlinedButton.icon(
             onPressed: () => _confirmDelete(context, ref),
