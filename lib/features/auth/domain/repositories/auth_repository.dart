@@ -33,7 +33,9 @@ abstract class AuthRepository {
     required String email,
     required String password,
   });
-  Future<Either<Failure, void>> sendPasswordReset(String email);
+  Future<Either<Failure, void>> sendPasswordReset(String email,
+      {String? redirectTo});
+  Future<Either<Failure, void>> updatePassword(String password);
   Future<Either<Failure, void>> signOut();
   Future<Either<Failure, UserProfile>> getProfile();
   Future<Either<Failure, UserProfile>> becomeOrganizer();

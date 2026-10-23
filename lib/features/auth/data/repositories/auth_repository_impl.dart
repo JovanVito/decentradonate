@@ -71,15 +71,29 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> sendPasswordReset(String email) async {
+  Future<Either<Failure, void>> sendPasswordReset(String email,
+      {String? redirectTo}) async {
     if (_client == null) {
       return const Left(ConfigurationFailure('Supabase belum dikonfigurasi.'));
     }
     try {
       await _client!.auth.resetPasswordForEmail(
         email,
-        redirectTo: SupabaseConfig.emailRedirectTo,
+        redirectTo: redirectTo ?? SupabaseConfig.emailRedirectTo,
       );
+      return const Right(null);
+    } catch (error) {
+      return Left(_failure(error));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updatePassword(String password) async {
+    if (_client == null) {
+      return const Left(ConfigurationFailure('Supabase belum dikonfigurasi.'));
+    }
+    try {
+      await _client!.auth.updateUser(UserAttributes(password: password));
       return const Right(null);
     } catch (error) {
       return Left(_failure(error));

@@ -50,35 +50,73 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   void dispose() {
-    _username.dispose(); _email.dispose(); _password.dispose(); _confirm.dispose(); super.dispose();
+    _username.dispose();
+    _email.dispose();
+    _password.dispose();
+    _confirm.dispose();
+    super.dispose();
   }
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _loading = true);
     final result = await ref.read(authRepositoryProvider).signUp(
-      username: _username.text.trim(), email: _email.text.trim(), password: _password.text,
-    );
+          username: _username.text.trim(),
+          email: _email.text.trim(),
+          password: _password.text,
+        );
     if (!mounted) return;
     setState(() => _loading = false);
-    result.fold((failure) => _message(failure.message), (_) => _message('Signup berhasil. Cek email untuk verifikasi.'));
+    result.fold((failure) => _message(failure.message),
+        (_) => _message('Signup berhasil. Cek email untuk verifikasi.'));
   }
 
-  void _message(String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  void _message(String message) => ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(message)));
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Buat Akun')),
-    body: Form(key: _formKey, child: ListView(padding: const EdgeInsets.all(20), children: [
-      TextFormField(controller: _username, decoration: const InputDecoration(labelText: 'Username'), validator: (v) => v == null || v.trim().length < 3 ? 'Username minimal 3 karakter' : null),
-      TextFormField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email'), validator: (v) => v == null || !v.contains('@') ? 'Email tidak valid' : null),
-      TextFormField(controller: _password, obscureText: true, onChanged: (_) => setState(() {}), decoration: const InputDecoration(labelText: 'Password'), validator: (v) => v == null || v.length < 8 ? 'Password minimal 8 karakter' : null),
-      PasswordStrengthMeter(password: _password.text),
-      TextFormField(controller: _confirm, obscureText: true, decoration: const InputDecoration(labelText: 'Konfirmasi Password'), validator: (v) => v != _password.text ? 'Password tidak sama' : null),
-      const SizedBox(height: 20),
-      ElevatedButton(onPressed: _loading ? null : _submit, child: _loading ? const CircularProgressIndicator() : const Text('Daftar')),
-    ])),
-  );
+        appBar: AppBar(title: const Text('Buat Akun')),
+        body: Form(
+            key: _formKey,
+            child: ListView(padding: const EdgeInsets.all(20), children: [
+              TextFormField(
+                  controller: _username,
+                  decoration: const InputDecoration(labelText: 'Username'),
+                  validator: (v) => v == null || v.trim().length < 3
+                      ? 'Username minimal 3 karakter'
+                      : null),
+              TextFormField(
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  validator: (v) => v == null || !v.contains('@')
+                      ? 'Email tidak valid'
+                      : null),
+              TextFormField(
+                  controller: _password,
+                  obscureText: true,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  validator: (v) => v == null || v.length < 8
+                      ? 'Password minimal 8 karakter'
+                      : null),
+              PasswordStrengthMeter(password: _password.text),
+              TextFormField(
+                  controller: _confirm,
+                  obscureText: true,
+                  decoration:
+                      const InputDecoration(labelText: 'Konfirmasi Password'),
+                  validator: (v) =>
+                      v != _password.text ? 'Password tidak sama' : null),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: _loading ? null : _submit,
+                  child: _loading
+                      ? const CircularProgressIndicator()
+                      : const Text('Daftar')),
+            ])),
+      );
 }
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -86,30 +124,144 @@ class LoginScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
+
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _email = TextEditingController(); final _password = TextEditingController(); bool _loading = false;
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool _loading = false;
   Future<void> _login() async {
     setState(() => _loading = true);
-    final result = await ref.read(authRepositoryProvider).signIn(email: _email.text.trim(), password: _password.text);
-    if (!mounted) return; setState(() => _loading = false);
-    result.fold((failure) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message))), (_) => context.go('/'));
+    final result = await ref
+        .read(authRepositoryProvider)
+        .signIn(email: _email.text.trim(), password: _password.text);
+    if (!mounted) return;
+    setState(() => _loading = false);
+    result.fold(
+        (failure) => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failure.message))),
+        (_) => context.go('/'));
   }
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Login')), body: ListView(padding: const EdgeInsets.all(20), children: [
-    TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email')),
-    TextField(controller: _password, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
-    Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())), child: const Text('Forgot password?'))),
-    ElevatedButton(onPressed: _loading ? null : _login, child: _loading ? const CircularProgressIndicator() : const Text('Masuk')),
-    TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SignupScreen())), child: const Text('Buat akun')),
-  ]));
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: const Text('Login')),
+      body: ListView(padding: const EdgeInsets.all(20), children: [
+        TextField(
+            controller: _email,
+            decoration: const InputDecoration(labelText: 'Email')),
+        TextField(
+            controller: _password,
+            obscureText: true,
+            decoration: const InputDecoration(labelText: 'Password')),
+        Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ForgotPasswordScreen())),
+                child: const Text('Forgot password?'))),
+        ElevatedButton(
+            onPressed: _loading ? null : _login,
+            child: _loading
+                ? const CircularProgressIndicator()
+                : const Text('Masuk')),
+        TextButton(
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const SignupScreen())),
+            child: const Text('Buat akun')),
+      ]));
 }
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
-  @override ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  @override
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
+
+class ResetPasswordScreen extends ConsumerStatefulWidget {
+  const ResetPasswordScreen({super.key});
+  @override
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
+}
+
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
+  final _password = TextEditingController();
+  final _confirm = TextEditingController();
+  bool _loading = false;
+
+  Future<void> _submit() async {
+    if (_password.text.length < 8 || _password.text != _confirm.text) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Password minimal 8 karakter dan harus sama.')));
+      return;
+    }
+    setState(() => _loading = true);
+    final result =
+        await ref.read(authRepositoryProvider).updatePassword(_password.text);
+    if (!mounted) return;
+    setState(() => _loading = false);
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(failure.message))),
+      (_) => context.go('/login'),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Buat Password Baru')),
+        body: ListView(padding: const EdgeInsets.all(20), children: [
+          TextField(
+              controller: _password,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Password baru')),
+          TextField(
+              controller: _confirm,
+              obscureText: true,
+              decoration:
+                  const InputDecoration(labelText: 'Konfirmasi password')),
+          const SizedBox(height: 20),
+          ElevatedButton(
+              onPressed: _loading ? null : _submit,
+              child: _loading
+                  ? const CircularProgressIndicator()
+                  : const Text('Simpan Password')),
+        ]),
+      );
+}
+
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
-  final _email = TextEditingController(); bool _sent = false;
-  Future<void> _send() async { final result = await ref.read(authRepositoryProvider).sendPasswordReset(_email.text.trim()); if (!mounted) return; result.fold((failure) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message))), (_) => setState(() => _sent = true)); }
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Reset Password')), body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email')), const SizedBox(height: 16), ElevatedButton(onPressed: _send, child: const Text('Kirim Link Reset')), if (_sent) const Text('Link reset telah dikirim ke email.')])));
+  final _email = TextEditingController();
+  bool _sent = false;
+  Future<void> _send() async {
+    final redirectTo = Uri.base.scheme == 'http' || Uri.base.scheme == 'https'
+        ? '${Uri.base.origin}/reset-password'
+        : null;
+    final result = await ref.read(authRepositoryProvider).sendPasswordReset(
+          _email.text.trim(),
+          redirectTo: redirectTo,
+        );
+    if (!mounted) return;
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(failure.message))),
+      (_) => setState(() => _sent = true),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: const Text('Reset Password')),
+      body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(children: [
+            TextField(
+                controller: _email,
+                decoration: const InputDecoration(labelText: 'Email')),
+            const SizedBox(height: 16),
+            ElevatedButton(
+                onPressed: _send, child: const Text('Kirim Link Reset')),
+            if (_sent) const Text('Link reset telah dikirim ke email.')
+          ])));
 }

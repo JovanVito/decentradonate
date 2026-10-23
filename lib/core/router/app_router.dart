@@ -23,6 +23,9 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
         path: '/forgot-password',
         builder: (_, __) => const ForgotPasswordScreen()),
+    GoRoute(
+        path: '/reset-password',
+        builder: (_, __) => const ResetPasswordScreen()),
     GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
     GoRoute(
