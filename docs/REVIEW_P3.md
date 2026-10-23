@@ -120,14 +120,14 @@ Test mencakup:
 Aplikasi juga sudah beberapa kali dibuild dan dipasang ke perangkat Android fisik memakai:
 
 ```powershell
-flutter build apk --debug --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter build apk --debug --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUBLISHABLE_KEY=...
 adb install -r -d build\app\outputs\flutter-apk\app-debug.apk
 ```
 
 Untuk menjalankan langsung:
 
 ```powershell
-flutter run -d 7edf40f --dart-define=SUPABASE_URL=https://zazwivipzlfnghfjpwun.supabase.co --dart-define=SUPABASE_ANON_KEY=public-key
+flutter run -d 7edf40f --dart-define=SUPABASE_URL=https://zazwivipzlfnghfjpwun.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=public-key
 ```
 
 ## 6. Status Review

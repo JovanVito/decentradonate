@@ -12,7 +12,7 @@ Future<void> main() async {
   if (SupabaseConfig.isConfigured) {
     await Supabase.initialize(
       url: SupabaseConfig.url,
-      anonKey: SupabaseConfig.anonKey,
+      publishableKey: SupabaseConfig.key,
     );
     supabaseClient = Supabase.instance.client;
   }

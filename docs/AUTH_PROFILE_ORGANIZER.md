@@ -80,7 +80,7 @@ dimatikan sementara; untuk demo publik, gunakan SMTP dan aktifkan kembali.
 Jalankan aplikasi dengan dua nilai konfigurasi:
 
 ```bash
-flutter run --dart-define=SUPABASE_URL=https://project.supabase.co --dart-define=SUPABASE_ANON_KEY=public-anon-key
+flutter run --dart-define=SUPABASE_URL=https://project.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_key
 ```
 
 Nilai tersebut dibaca oleh `lib/core/constants/supabase_config.dart`.
