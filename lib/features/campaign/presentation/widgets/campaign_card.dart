@@ -33,73 +33,99 @@ class CampaignCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RippleRing(percent: campaign.progressPercent, size: 54),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        campaign.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.fraunces(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          height: 1.15,
-                          color: AppColors.ink,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (campaign.imageUrl != null) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image(
+                          image: campaign.imageUrl!.startsWith('http')
+                              ? NetworkImage(campaign.imageUrl!) as ImageProvider
+                              : AssetImage(campaign.imageUrl!),
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _ImageFallback(),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Terkumpul ${_fmt(campaign.collectedAmount)} / ${_fmt(campaign.targetAmount)} MATIC',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
+                      const SizedBox(width: 12),
+                    ] else ...[
+                      const _ImageFallback(),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.check_circle,
-                              size: 12, color: AppColors.verifiedText),
-                          const SizedBox(width: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.verified_rounded,
+                                  size: 15, color: AppColors.verifiedText),
+                              const SizedBox(width: 4),
+                              const Text('TRANSPARAN',
+                                  style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.verifiedText,
+                                      letterSpacing: .5)),
+                              const Spacer(),
+                              Icon(Icons.arrow_forward_ios_rounded,
+                                  size: 14, color: AppColors.textSecondary),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
                           Text(
-                            '${(campaign.progressPercent * 100).toStringAsFixed(0)}% tercapai',
-                            style: const TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.verifiedText,
+                            campaign.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.fraunces(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              height: 1.15,
+                              color: AppColors.ink,
                             ),
                           ),
                         ],
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${_fmt(campaign.collectedAmount)} MATIC terkumpul',
+                        style: const TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.w700)),
+                    Text('${(campaign.progressPercent * 100).toStringAsFixed(0)}%',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.verifiedText)),
+                  ],
+                ),
+                const SizedBox(height: 7),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(99),
+                  child: LinearProgressIndicator(
+                    value: campaign.progressPercent,
+                    minHeight: 8,
+                    backgroundColor: AppColors.paperDeep,
+                    valueColor:
+                        const AlwaysStoppedAnimation(AppColors.ripple),
                   ),
                 ),
-                if (campaign.imageUrl != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Image(
-                      image: campaign.imageUrl!.startsWith('http')
-                          ? NetworkImage(campaign.imageUrl!) as ImageProvider
-                          : AssetImage(campaign.imageUrl!),
-                      width: 58,
-                      height: 58,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 58,
-                        height: 58,
-                        color: AppColors.paperDeep,
-                        child: const Icon(Icons.volunteer_activism_rounded,
-                            color: AppColors.ripple),
-                      ),
-                    ),
-                  ),
+                const SizedBox(height: 7),
+                Text('Target ${_fmt(campaign.targetAmount)} MATIC · ${campaign.organizer}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 10.5, color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -110,4 +136,19 @@ class CampaignCard extends StatelessWidget {
 
   static String _fmt(double value) =>
       value.toStringAsFixed(2).replaceAll('.', ',');
+}
+
+class _ImageFallback extends StatelessWidget {
+  const _ImageFallback();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 64,
+        height: 64,
+        decoration: BoxDecoration(
+            color: AppColors.paperDeep,
+            borderRadius: BorderRadius.circular(14)),
+        child: const Icon(Icons.volunteer_activism_rounded,
+            color: AppColors.ripple, size: 28),
+      );
 }

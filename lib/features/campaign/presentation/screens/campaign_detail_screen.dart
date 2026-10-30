@@ -65,6 +65,24 @@ class CampaignDetailScreen extends ConsumerWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                value: c.progressPercent,
+                minHeight: 8,
+                backgroundColor: AppColors.paperDeep,
+                valueColor: const AlwaysStoppedAnimation(AppColors.ripple),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${(c.progressPercent * 100).toStringAsFixed(0)}% target tercapai',
+              style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.verifiedText),
+            ),
             const SizedBox(height: 16),
             Text(c.title,
                 style: GoogleFonts.fraunces(

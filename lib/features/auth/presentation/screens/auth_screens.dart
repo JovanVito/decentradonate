@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_providers.dart';
 
+
 class PasswordStrengthMeter extends StatelessWidget {
   final String password;
   const PasswordStrengthMeter({super.key, required this.password});
@@ -190,22 +191,47 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _confirm = TextEditingController();
   bool _loading = false;
 
+  @override
+  void dispose() {
+    _password.dispose();
+    _confirm.dispose();
+    super.dispose();
+  }
+
   Future<void> _submit() async {
-    if (_password.text.length < 8 || _password.text != _confirm.text) {
+    final password = _password.text;
+    if (password.length < 8 || password != _confirm.text) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Password minimal 8 karakter dan harus sama.')));
       return;
     }
     setState(() => _loading = true);
     final result =
-        await ref.read(authRepositoryProvider).updatePassword(_password.text);
+        await ref.read(authRepositoryProvider).updatePassword(password);
     if (!mounted) return;
     setState(() => _loading = false);
     result.fold(
-      (failure) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(failure.message))),
-      (_) => context.go('/login'),
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(_friendlyAuthError(failure.message)))),
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Password berhasil diperbarui. Silakan login.')));
+        context.go('/login');
+      },
     );
+  }
+
+  String _friendlyAuthError(String message) {
+    final lower = message.toLowerCase();
+    if (lower.contains('error sending recovery email') ||
+        lower.contains('unexpected_failure')) {
+      return 'Email reset gagal dikirim. Periksa konfigurasi email Supabase atau coba lagi nanti.';
+    }
+    if (lower.contains('session') || lower.contains('jwt') ||
+        lower.contains('token')) {
+      return 'Link reset sudah kedaluwarsa. Minta link reset baru.';
+    }
+    return message.replaceFirst('Exception: ', '');
   }
 
   @override
