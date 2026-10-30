@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../campaign/presentation/providers/campaign_management_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -157,14 +158,16 @@ class _OrganizerTermsScreenState extends ConsumerState<OrganizerTermsScreen> {
       ]));
 }
 
-class CreateCampaignScreen extends StatefulWidget {
+class CreateCampaignScreen extends ConsumerStatefulWidget {
   const CreateCampaignScreen({super.key});
   @override
-  State<CreateCampaignScreen> createState() => _CreateCampaignScreenState();
+  ConsumerState<CreateCampaignScreen> createState() =>
+      _CreateCampaignScreenState();
 }
 
-class _CreateCampaignScreenState extends State<CreateCampaignScreen> {
+class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
   final _formKey = GlobalKey<FormState>();
+  bool _saving = false;
   final _title = TextEditingController();
   final _description = TextEditingController();
   final _target = TextEditingController();
@@ -197,12 +200,40 @@ class _CreateCampaignScreenState extends State<CreateCampaignScreen> {
                     : null),
             const SizedBox(height: 20),
             ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate())
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            'Form campaign valid dan siap dikirim ke blockchain.')));
-                },
-                child: const Text('Lanjutkan'))
+                onPressed: _saving
+                    ? null
+                    : () async {
+                        if (!(_formKey.currentState?.validate() ?? false))
+                          return;
+                        setState(() => _saving = true);
+                        final result = await ref
+                            .read(campaignManagementRepositoryProvider)
+                            .createCampaign(
+                              title: _title.text,
+                              description: _description.text,
+                              targetAmount: double.parse(_target.text),
+                            );
+                        if (!mounted) return;
+                        setState(() => _saving = false);
+                        result.fold(
+                          (failure) => ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                                  SnackBar(content: Text(failure.message))),
+                          (_) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Campaign berhasil disimpan ke Supabase.')),
+                            );
+                            context.go('/');
+                          },
+                        );
+                      },
+                child: _saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator())
+                    : const Text('Simpan Campaign'))
           ])));
 }

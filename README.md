@@ -77,7 +77,8 @@ Harden → Release):
    lewat smart contract, dengan status transaksi (pending/sukses/gagal)
    ditampilkan jelas ke pengguna.
 4. **Login, Signup, Profile, dan Organizer Role** — akun dikelola melalui Supabase Auth, profile menyimpan username, email, nomor handphone, foto, dan role.
-5. **Proof-of-Impact** — hanya organizer yang dapat mengambil foto + menandai lokasi GPS sebagai bukti penggunaan dana, lalu menyimpannya ke IPFS dan Supabase Storage.
+5. **Organizer Campaign** — organizer menyetujui syarat, mengisi form campaign, lalu data campaign disimpan ke Supabase.
+6. **Proof-of-Impact** — hanya organizer yang dapat mengambil foto + menandai lokasi GPS sebagai bukti penggunaan dana, lalu menyimpannya ke IPFS dan Supabase Storage.
 6. **Riwayat Transaksi** — daftar donasi yang pernah dilakukan/diterima, diambil dari event on-chain.
 7. **Loading, Empty, dan Error State** di setiap alur utama — termasuk penanganan kondisi jaringan lambat/terputus dan konfigurasi yang belum lengkap, tanpa fatal crash.
 8. **APK Rilis** — dapat diinstal dan didemonstrasikan di perangkat Android fisik.

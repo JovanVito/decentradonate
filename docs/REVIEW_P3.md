@@ -141,7 +141,8 @@ Status aplikasi saat ini:
 - Supabase Auth/Profile tersedia.
 - Wallet dan transaksi blockchain tersedia untuk alur web3.
 - Proof-of-Impact tersedia untuk organizer.
-- Test otomatis lulus: 20 test.
+- Test otomatis lulus: 26 test.
+- Create Campaign menyimpan data organizer ke Supabase melalui repository.
 - Local Data & Persistence untuk kontak wallet tersedia dengan CRUD dan backend SQLite/localStorage sesuai platform.
 
 Dengan demikian, syarat P3 terpenuhi. Catatan utama untuk demo adalah memastikan Supabase sudah memiliki tabel `profiles`, trigger `handle_new_user`, bucket `proofs`, tabel `proof_of_impact`, serta menjalankan aplikasi dengan `--dart-define` Supabase yang benar.
