@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_providers.dart';
 
-
 class PasswordStrengthMeter extends StatelessWidget {
   final String password;
   const PasswordStrengthMeter({super.key, required this.password});
@@ -146,30 +145,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: const Text('Login')),
-      body: ListView(padding: const EdgeInsets.all(20), children: [
-        TextField(
-            controller: _email,
-            decoration: const InputDecoration(labelText: 'Email')),
-        TextField(
-            controller: _password,
-            obscureText: true,
-            decoration: const InputDecoration(labelText: 'Password')),
-        Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const ForgotPasswordScreen())),
-                child: const Text('Forgot password?'))),
-        ElevatedButton(
-            onPressed: _loading ? null : _login,
-            child: _loading
-                ? const CircularProgressIndicator()
-                : const Text('Masuk')),
-        TextButton(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const SignupScreen())),
-            child: const Text('Buat akun')),
-      ]));
+      body: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(20),
+          children: [
+            TextField(
+                controller: _email,
+                decoration: const InputDecoration(labelText: 'Email')),
+            TextField(
+                controller: _password,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Password')),
+            Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const ForgotPasswordScreen())),
+                    child: const Text('Forgot password?'))),
+            ElevatedButton(
+                onPressed: _loading ? null : _login,
+                child: _loading
+                    ? const CircularProgressIndicator()
+                    : const Text('Masuk')),
+            TextButton(
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SignupScreen())),
+                child: const Text('Buat akun')),
+          ]));
 }
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -211,8 +214,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     result.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(_friendlyAuthError(failure.message)))),
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_friendlyAuthError(failure.message)))),
       (_) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Password berhasil diperbarui. Silakan login.')));
@@ -227,7 +230,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         lower.contains('unexpected_failure')) {
       return 'Email reset gagal dikirim. Periksa konfigurasi email Supabase atau coba lagi nanti.';
     }
-    if (lower.contains('session') || lower.contains('jwt') ||
+    if (lower.contains('session') ||
+        lower.contains('jwt') ||
         lower.contains('token')) {
       return 'Link reset sudah kedaluwarsa. Minta link reset baru.';
     }
@@ -237,23 +241,27 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Buat Password Baru')),
-        body: ListView(padding: const EdgeInsets.all(20), children: [
-          TextField(
-              controller: _password,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password baru')),
-          TextField(
-              controller: _confirm,
-              obscureText: true,
-              decoration:
-                  const InputDecoration(labelText: 'Konfirmasi password')),
-          const SizedBox(height: 20),
-          ElevatedButton(
-              onPressed: _loading ? null : _submit,
-              child: _loading
-                  ? const CircularProgressIndicator()
-                  : const Text('Simpan Password')),
-        ]),
+        body: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.all(20),
+            children: [
+              TextField(
+                  controller: _password,
+                  obscureText: true,
+                  decoration:
+                      const InputDecoration(labelText: 'Password baru')),
+              TextField(
+                  controller: _confirm,
+                  obscureText: true,
+                  decoration:
+                      const InputDecoration(labelText: 'Konfirmasi password')),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: _loading ? null : _submit,
+                  child: _loading
+                      ? const CircularProgressIndicator()
+                      : const Text('Simpan Password')),
+            ]),
       );
 }
 
