@@ -1,0 +1,12 @@
+﻿{
+  "@@locale": "id",
+  "accessTitle": "Pilih cara masuk",
+  "accessDescription": "Donasi dan ikuti penggunaan dana kampanye.",
+  "donorEntry": "Masuk sebagai Donatur",
+  "organizerEntry": "Masuk sebagai Penyelenggara",
+  "donorTitle": "Akses donatur",
+  "organizerTitle": "Akses penyelenggara",
+  "otpUnavailable": "Masuk melalui email OTP belum tersedia di versi pengembangan ini.",
+  "setupError": "Konfigurasi aplikasi belum valid. Hubungi pengelola aplikasi.",
+  "returnToAccess": "Kembali ke pilihan akses"
+}
