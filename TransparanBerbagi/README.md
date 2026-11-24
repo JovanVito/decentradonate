@@ -13,7 +13,7 @@ flutter test
 flutter run
 ~~~
 
-Tanpa konfigurasi, aplikasi berjalan sebagai pratinjau Fase 1. Dua pintu masuk tersedia untuk memeriksa navigasi. OTP, kampanye, pembayaran, transparansi, dan kemampuan penyelenggara belum aktif.
+Tanpa konfigurasi, aplikasi berjalan sebagai pratinjau. Hubungkan lingkungan dev ke Supabase untuk menjalankan OTP dan memeriksa akses akun.
 
 Salin salah satu contoh di folder config menjadi file dengan akhiran .local.json. Isi URL proyek dan publishable key yang sesuai. Jalankan, misalnya:
 
@@ -86,3 +86,9 @@ Dua migrasi mendefinisikan delapan tabel ber-RLS, akses berbasis peran dan kepem
 ## Foto layar masuk
 
 Foto ilustrasi kegiatan donasi oleh [Gustavo Fring di Pexels](https://www.pexels.com/photo/people-packing-donations-7156163/).
+
+## Fase 3 — Akses akun dengan OTP
+
+Jalankan Supabase lokal dan aplikasi dengan config/dev.local.json. Masukkan email di pintu masuk donatur. Ambil kode enam digit dari Mailpit lokal (http://127.0.0.1:54324), lalu verifikasi di aplikasi. Aplikasi menyimpan sesi di penyimpanan aman perangkat dan memeriksa kembali role dari database ketika membuka akun. Untuk penyelenggara, akun juga harus berstatus approved. Pintu masuk penyelenggara meminta OTP untuk akun yang sudah ada, tanpa membuat akun baru.
+
+Tampilan akun menampilkan hasil pemeriksaan akses dan tombol keluar. Pengajuan penyelenggara beserta upload dokumen dan dashboard kampanye masih perlu dikerjakan.

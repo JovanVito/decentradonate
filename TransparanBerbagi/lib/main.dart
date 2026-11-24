@@ -1,3 +1,5 @@
+import 'package:decentradonate/features/access/data/secure_session_storage.dart';
+import 'package:decentradonate/features/access/data/supabase_access_repository.dart';
 import 'package:cupertino_ui/cupertino_ui.dart'
     show GlobalCupertinoLocalizations;
 import 'package:flutter_localizations/flutter_localizations.dart'
@@ -19,6 +21,7 @@ const _localizationDelegates = [
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SupabaseAccessRepository? repository;
   try {
     final config = AppConfig.fromDefines()..validate();
     if (!config.isPreview) {
@@ -26,13 +29,23 @@ Future<void> main() async {
         url: config.supabaseUrl,
         publishableKey: config.supabasePublishableKey,
         debug: false,
+        authOptions: FlutterAuthClientOptions(
+          detectSessionInUri: false,
+          localStorage: SecureSessionStorage(Uri.parse(config.supabaseUrl)),
+        ),
       );
+      repository = SupabaseAccessRepository(Supabase.instance.client);
     }
   } on Object {
     runApp(const SetupErrorApp());
     return;
   }
-  runApp(const ProviderScope(child: DecentradonateApp()));
+  runApp(
+    ProviderScope(
+      overrides: [accessRepositoryProvider.overrideWithValue(repository)],
+      child: const DecentradonateApp(),
+    ),
+  );
 }
 
 class DecentradonateApp extends ConsumerWidget {
