@@ -8,6 +8,11 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: DecentradonateApp()));
     await tester.pumpAndSettle();
 
+    expect(
+      find.bySemanticsLabel('Relawan memilah barang ke dalam kotak donasi'),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(find.text('Masuk sebagai Penyelenggara'));
     await tester.tap(find.text('Masuk sebagai Penyelenggara'));
     await tester.pumpAndSettle();
     expect(find.text('Akses penyelenggara'), findsOneWidget);

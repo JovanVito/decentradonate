@@ -74,3 +74,7 @@ Kampanye demo dan satu donasi berbayar siap untuk latihan kueri. Alokasi demo te
 ### Ringkasan Fase 2
 
 Dua migrasi mendefinisikan delapan tabel ber-RLS, akses berbasis peran dan kepemilikan, empat bucket privat, sinkronisasi role, audit, dan agregat dana. Tes SQL mencakup akses lintas akun, pencabutan akses organizer, penolakan pengeluaran di atas saldo, dan publikasi bukti. Migrasi, seed dan tes dijalankan di PostgreSQL WASM dengan fixture Auth dan Storage. Verifikasi melalui kontainer Supabase penuh tetap diperlukan untuk Auth, upload, URL bertanda tangan, dan Realtime.
+
+## Foto layar masuk
+
+Foto ilustrasi kegiatan donasi oleh [Gustavo Fring di Pexels](https://www.pexels.com/photo/people-packing-donations-7156163/).

@@ -58,7 +58,19 @@ class AccessScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: Image.asset(
+                        'assets/images/access-donation.jpg',
+                        fit: BoxFit.cover,
+                        semanticLabel: strings.accessPhotoDescription,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   Text(strings.accessTitle, style: theme.textTheme.titleLarge),
                   const SizedBox(height: 12),
                   _AccessOption(
