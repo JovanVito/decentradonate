@@ -1,4 +1,4 @@
-﻿# TransparanBerbagi
+# Decentradonate
 
 Aplikasi Flutter untuk donasi dengan bukti penggunaan dana. Lihat [arsitektur, ERD, alur, dan design system](docs/phase-00.md).
 

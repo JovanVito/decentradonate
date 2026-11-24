@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:transparan_berbagi/core/config/app_config.dart';
-import 'package:transparan_berbagi/main.dart';
+import 'package:decentradonate/core/config/app_config.dart';
+import 'package:decentradonate/main.dart';
 
 void main() {
   testWidgets('organizer entry shows its own access screen', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: TransparanBerbagiApp()));
+    await tester.pumpWidget(const ProviderScope(child: DecentradonateApp()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Masuk sebagai Penyelenggara'));

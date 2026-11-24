@@ -1,4 +1,4 @@
-﻿# Fase 0 — Perencanaan TransparanBerbagi
+# Fase 0 — Perencanaan Decentradonate
 
 Aplikasi baru untuk Android dan iOS. Bahasa awal Indonesia, mata uang IDR disimpan sebagai bilangan bulat tanpa pecahan. Nama tampilan Flutter berada di konfigurasi aplikasi. Nama pada peluncur OS dikelola lewat konfigurasi platform. Proyek ini berada di folder tersendiri karena brief meminta pembangunan dari nol.
 

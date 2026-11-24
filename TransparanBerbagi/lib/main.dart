@@ -5,10 +5,10 @@ import 'package:flutter_localizations/flutter_localizations.dart'
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:transparan_berbagi/core/config/app_config.dart';
-import 'package:transparan_berbagi/core/routing/app_router.dart';
-import 'package:transparan_berbagi/core/theme/app_theme.dart';
-import 'package:transparan_berbagi/l10n/app_localizations.dart';
+import 'package:decentradonate/core/config/app_config.dart';
+import 'package:decentradonate/core/routing/app_router.dart';
+import 'package:decentradonate/core/theme/app_theme.dart';
+import 'package:decentradonate/l10n/app_localizations.dart';
 
 const _localizationDelegates = [
   AppLocalizations.delegate,
@@ -32,11 +32,11 @@ Future<void> main() async {
     runApp(const SetupErrorApp());
     return;
   }
-  runApp(const ProviderScope(child: TransparanBerbagiApp()));
+  runApp(const ProviderScope(child: DecentradonateApp()));
 }
 
-class TransparanBerbagiApp extends ConsumerWidget {
-  const TransparanBerbagiApp({super.key});
+class DecentradonateApp extends ConsumerWidget {
+  const DecentradonateApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

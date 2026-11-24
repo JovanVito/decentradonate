@@ -19,7 +19,7 @@ class AppConfig {
     );
   }
 
-  static const name = 'TransparanBerbagi';
+  static const name = 'Decentradonate';
 
   final AppEnvironment environment;
   final String supabaseUrl;

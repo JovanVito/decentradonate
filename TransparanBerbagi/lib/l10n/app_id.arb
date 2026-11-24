@@ -1,6 +1,7 @@
-﻿{
+{
   "@@locale": "id",
   "accessTitle": "Pilih cara masuk",
+  "accessHeadline": "Ikuti ke mana donasi Anda disalurkan",
   "accessDescription": "Donasi dan ikuti penggunaan dana kampanye.",
   "donorEntry": "Masuk sebagai Donatur",
   "organizerEntry": "Masuk sebagai Penyelenggara",
