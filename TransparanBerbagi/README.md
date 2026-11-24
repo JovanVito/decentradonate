@@ -58,8 +58,16 @@ Jalankan dari folder proyek dengan Docker Desktop aktif. Versi CLI yang dipakai 
 npx.cmd --yes supabase@3.2.0 start
 npx.cmd --yes supabase@3.2.0 status
 npx.cmd --yes supabase@3.2.0 migration list
-npx.cmd --yes supabase@3.2.0 db query --file supabase/tests/rls.sql
+Get-Content -Raw supabase/tests/rls.sql | docker exec -i supabase_db_TransparanBerbagi psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres
 ~~~
+
+Untuk menjalankan layanan inti dengan unduhan image lebih sedikit, gunakan:
+
+~~~powershell
+npx.cmd --yes supabase@3.2.0 start -x studio,edge-runtime,postgres-meta,imgproxy,logflare,vector,supavisor
+~~~
+
+Mode ini menjalankan PostgreSQL, REST API, Auth, Storage, Realtime, dan kotak email lokal. Jalankan skrip RLS melalui psql agar seluruh rangkaian perintah dan rollback dijalankan dalam satu sesi.
 
 Salin URL API serta publishable key lokal dari status yang ditampilkan di terminal ke config/dev.local.json. Gunakan http://10.0.2.2:54321 untuk emulator Android. Simulator iOS dapat memakai http://127.0.0.1:54321. Jaga secret key hanya di backend. Buka Studio dan kotak masuk lokal dari alamat yang dicetak CLI.
 
