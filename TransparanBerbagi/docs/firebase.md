@@ -2,6 +2,12 @@
 
 Firebase App Distribution mengirim APK ke penguji Android. Firebase Hosting menyajikan build web melalui URL HTTPS untuk reviewer. Keduanya menggunakan backend Supabase staging agar aplikasi dapat membaca data dari jaringan reviewer.
 
+## Status staging
+
+Supabase staging Decentradonate sudah aktif di wilayah Singapura. Migrasi, seed, akses katalog HTTPS, dan RLS terverifikasi. Firebase Hosting Emulator berhasil menjalankan Flutter Web dengan data dari backend tersebut. Supabase staging memiliki [endpoint HTTPS](https://vvmbjtbvbxauuvgxffyo.supabase.co).
+
+Fitur OTP cloud memerlukan SMTP kustom dan template enam digit. Supabase membatasi SMTP bawaan pada anggota organisasi, dan proyek Free baru membutuhkan SMTP kustom untuk mengedit template. Masalah ini dilacak pada [issue #2](https://github.com/JovanVito/decentradonate/issues/2). Setelah pengirim terverifikasi tersedia, masukkan konfigurasi SMTP pada dashboard Supabase lalu gunakan template pada `supabase/templates/email-otp.html` untuk Confirm signup dan Magic Link. [Dokumentasi SMTP](https://supabase.com/docs/guides/auth/auth-smtp) · [Kebijakan template email](https://supabase.com/changelog/46599-changes-to-email-template-customisation-on-free-tier)
+
 ## Prasyarat
 
 - Project Firebase tujuan dan akun yang memiliki akses ke App Distribution serta Hosting.

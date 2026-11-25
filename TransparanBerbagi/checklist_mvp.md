@@ -24,11 +24,12 @@ Git mencatat OTP dan pembatasan peran pada `3bba38f`, kode produksi pada `b5cb07
 ## Pengumpulan eksternal
 
 - [ ] Bukti generasi Gemini dan review mahasiswa.
-- [ ] Pull request ke repo kelas.
-- [ ] Deploy pada target HTTPS dan verifikasi dari jaringan reviewer.
+- [x] [Pull request #1](https://github.com/JovanVito/decentradonate/pull/1) digabung ke main.
+- [x] Backend Supabase staging di HTTPS. RLS dan katalog terverifikasi.
+- [ ] Terbitkan Firebase Hosting dan verifikasi dari jaringan reviewer.
 - [ ] Triase temuan pascadeploy. Buat issue dengan langkah reproduksi, perbaiki, dan verifikasi sebelum ditutup.
 
-Repo tujuan adalah JovanVito/decentradonate. Jumlah bug deployment yang benar-benar direproduksi menunggu lingkungan publik.
+Repo tujuan adalah JovanVito/decentradonate. [Issue #2](https://github.com/JovanVito/decentradonate/issues/2) mencatat prasyarat OTP yang ditemukan pada staging. Penghitungan 10 bug pascadeploy menunggu pengujian aplikasi setelah URL publik tersedia.
 
 ## Bukti lokal
 
