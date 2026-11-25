@@ -1,4 +1,5 @@
 import 'package:decentradonate/features/access/data/secure_session_storage.dart';
+import 'package:decentradonate/features/campaigns/data/campaign_repository.dart';
 import 'package:decentradonate/features/access/data/supabase_access_repository.dart';
 import 'package:cupertino_ui/cupertino_ui.dart'
     show GlobalCupertinoLocalizations;
@@ -22,6 +23,7 @@ const _localizationDelegates = [
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SupabaseAccessRepository? repository;
+  CampaignRepository? campaigns;
   try {
     final config = AppConfig.fromDefines()..validate();
     if (!config.isPreview) {
@@ -35,6 +37,7 @@ Future<void> main() async {
         ),
       );
       repository = SupabaseAccessRepository(Supabase.instance.client);
+      campaigns = CampaignRepository(Supabase.instance.client);
     }
   } on Object {
     runApp(const SetupErrorApp());
@@ -42,7 +45,10 @@ Future<void> main() async {
   }
   runApp(
     ProviderScope(
-      overrides: [accessRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        accessRepositoryProvider.overrideWithValue(repository),
+        campaignRepositoryProvider.overrideWithValue(campaigns),
+      ],
       child: const DecentradonateApp(),
     ),
   );

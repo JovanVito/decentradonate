@@ -71,6 +71,11 @@ class AccessScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: () => context.push('/kampanye'),
+                    child: Text(strings.browseCampaigns),
+                  ),
+                  const SizedBox(height: 24),
                   Text(strings.accessTitle, style: theme.textTheme.titleLarge),
                   const SizedBox(height: 12),
                   _AccessOption(

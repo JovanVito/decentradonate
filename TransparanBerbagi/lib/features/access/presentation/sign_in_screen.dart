@@ -1,3 +1,5 @@
+import 'package:decentradonate/features/access/domain/email_otp.dart';
+
 import 'dart:async';
 
 import 'package:decentradonate/features/access/data/supabase_access_repository.dart';
@@ -156,9 +158,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           decoration: InputDecoration(
                             labelText: strings.emailLabel,
                           ),
-                          validator: (value) =>
-                              RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                                  .hasMatch(value?.trim() ?? '')
+                          validator: (value) => EmailOtp.validEmail(value)
                               ? null
                               : strings.invalidEmail,
                         )
@@ -177,8 +177,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           decoration: InputDecoration(
                             labelText: strings.codeLabel,
                           ),
-                          validator: (value) =>
-                              value?.length == 6 ? null : strings.invalidCode,
+                          validator: (value) => EmailOtp.validCode(value)
+                              ? null
+                              : strings.invalidCode,
                         ),
                       const SizedBox(height: 12),
                       if (_error case final error?)

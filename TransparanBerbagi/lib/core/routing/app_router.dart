@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:decentradonate/features/campaigns/presentation/campaign_screens.dart';
+
 import 'package:decentradonate/features/access/data/supabase_access_repository.dart';
 import 'package:decentradonate/features/access/domain/access_repository.dart';
 import 'package:decentradonate/features/access/presentation/access_screen.dart';
@@ -47,6 +49,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/', builder: (_, _) => const AccessScreen()),
+      GoRoute(path: '/kampanye', builder: (_, _) => const CampaignListScreen()),
+      GoRoute(
+        path: '/kampanye/:id',
+        builder: (_, state) =>
+            CampaignDetailScreen(id: state.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/masuk/donatur',
         builder: (_, _) => const SignInScreen(isOrganizer: false),
@@ -120,6 +128,13 @@ class _AccountScreenState extends ConsumerState<_AccountScreen> {
                   : strings.emailVerified,
             ),
             const SizedBox(height: 16),
+            if (!widget.isOrganizer) ...[
+              FilledButton(
+                onPressed: () => context.push('/kampanye'),
+                child: Text(strings.browseCampaigns),
+              ),
+              const SizedBox(height: 12),
+            ],
             OutlinedButton(
               onPressed: _signingOut ? null : _signOut,
               child: Text(strings.signOut),
