@@ -1,5 +1,14 @@
 # Decentradonate
 
+**MVP kelas** — Katalog kampanye publik, progres dan transparansi dana, serta akses donatur dan penyelenggara dengan OTP.
+
+- [Cara menjalankan dan fresh clone](HowToRun.md)
+- [Tema, ruang lingkup 12 pertemuan, dan arsitektur](docs/arsitektur.md)
+- [Checklist lima user story dan bukti tes](checklist_mvp.md)
+- [Demo MP4](demo.mp4) dan [screenshot](docs/screenshot-mvp.png)
+- [Pengujian keamanan dan log aman](docs/pengujian-keamanan.md)
+- [Konfigurasi Firebase Hosting dan App Distribution](docs/firebase.md)
+
 Aplikasi Flutter untuk donasi dengan bukti penggunaan dana. Lihat [arsitektur, ERD, alur, dan design system](docs/phase-00.md).
 
 ## Menjalankan fondasi
@@ -91,4 +100,4 @@ Foto ilustrasi kegiatan donasi oleh [Gustavo Fring di Pexels](https://www.pexels
 
 Jalankan Supabase lokal dan aplikasi dengan config/dev.local.json. Masukkan email di pintu masuk donatur. Ambil kode enam digit dari Mailpit lokal (http://127.0.0.1:54324), lalu verifikasi di aplikasi. Aplikasi menyimpan sesi di penyimpanan aman perangkat dan memeriksa kembali role dari database ketika membuka akun. Untuk penyelenggara, akun juga harus berstatus approved. Pintu masuk penyelenggara meminta OTP untuk akun yang sudah ada, tanpa membuat akun baru.
 
-Tampilan akun menampilkan hasil pemeriksaan akses dan tombol keluar. Pengajuan penyelenggara beserta upload dokumen dan dashboard kampanye masih perlu dikerjakan.
+Tampilan akun menampilkan hasil pemeriksaan akses dan tombol keluar. Pengajuan penyelenggara, unggah dokumen, dan dashboard pengelolaan kampanye berada di luar MVP kelas.
