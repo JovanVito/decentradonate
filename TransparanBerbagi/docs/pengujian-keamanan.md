@@ -28,4 +28,6 @@ All tests passed!
 | Docker sebelumnya gagal menyiapkan stack | DNS registry dan koneksi unduhan image terputus | Lanjutkan dari cache dan mulai hanya layanan inti. Cek kontainer sehat dan jalankan pengujian REST |
 | Dry run Wasm melaporkan impor `dart:html` pada secure storage | Adapter web saat ini masih memakai interop JS lama | Gunakan build JavaScript. Upgrade adapter sebelum mendukung Wasm |
 
-Pemeriksaan ini mencakup pengembangan lokal. Hasil pengujian pascadeploy bergantung pada host, TLS, pembatasan jaringan, konfigurasi Supabase, dan kredensial staging yang sebenarnya.
+Skrip RLS juga lulus di Supabase staging. Firebase Hosting Emulator memuat katalog dan saldo dari REST API staging melalui HTTPS. Supabase Security Advisor menampilkan satu peringatan konfigurasi tentang perlindungan kata sandi bocor. Alur UI versi ini memakai OTP. Pengiriman OTP staging ke reviewer eksternal masih membutuhkan SMTP kustom dan template enam digit.
+
+Verifikasi UI pada Firebase Hosting publik dan APK App Distribution masih menunggu akses deployment.
