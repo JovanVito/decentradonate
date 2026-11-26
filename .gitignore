@@ -7,3 +7,15 @@ android/local.properties
 .idea/
 *.iml
 .DS_Store
+
+# Dokumen dan konfigurasi lokal
+PRD.md
+SUPABASE_SETUP.md
+.env
+.env.*
+!.env.example
+*credential*
+*credentials*
+*secret*
+*service_role*
+supabase-config.json
