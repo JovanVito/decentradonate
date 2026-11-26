@@ -44,7 +44,7 @@ Flutter UI
             ├── Supabase Auth
             ├── PostgreSQL
             ├── RPC functions
-            └── Storage bucket proofs
+            └── Storage privat mobile-proofs
 ```
 
 ### Struktur Project
@@ -65,15 +65,13 @@ test/widget_test.dart          # test model catatan lokal
 
 Supabase menyimpan data berikut:
 
-- `profiles`: profil dan saldo pengguna.
-- `campaigns`: campaign penggalangan dana.
-- `allocations`: rencana penggunaan dana.
-- `donations`: transaksi donasi.
-- `topups`: riwayat top up.
-- `proofs`: foto, keterangan, dan koordinat bukti penyaluran.
-- `posts`: posting komunitas.
+- `mobile_profiles` menyimpan nama dan saldo demo. Pengguna membaca saldo sendiri lewat RPC.
+- `mobile_campaigns` dan `mobile_allocations` menyimpan campaign beserta rencana penggunaan dana.
+- `mobile_donations` dan `mobile_topups` menyimpan transaksi saldo demo.
+- `mobile_proofs` menyimpan rujukan foto, keterangan, dan koordinat penyaluran.
+- `mobile_posts` menyimpan kiriman komunitas.
 
-Database memakai trigger pembuatan profile, RPC untuk transaksi, Row Level Security, dan Storage bucket `proofs`.
+Database membuat profil saat pendaftaran. RLS membatasi akses tabel, dan aplikasi memakai URL bertanda tangan untuk membaca foto dari bucket privat `mobile-proofs`.
 
 ### State Management
 
@@ -104,25 +102,22 @@ State UI yang tersedia:
 
 ## Setup Supabase
 
-1. Buat project di dashboard Supabase.
-2. Buka `SQL Editor`.
-3. Jalankan seluruh isi `supabase_schema.sql` sekali.
-4. Buka `Project Settings > API`.
-5. Salin `Project URL` dan `Publishable key`.
-6. Jalankan aplikasi dengan konfigurasi berikut:
+Proyek `vvmbjtbvbxauuvgxffyo` sudah menerima migrasi aplikasi. Untuk menyiapkan proyek lain, jalankan `supabase_schema.sql`, `supabase_profile.sql`, lalu `supabase_campaign_catalog.sql` melalui SQL Editor.
+
+Buat `supabase-config.json` di direktori proyek dengan `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` dari dashboard. Git mengabaikan berkas ini.
 
 ```bash
 flutter pub get
-flutter run --dart-define=SUPABASE_URL=https://PROJECT_REF.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
-```
-
-Untuk build APK:
-
-```bash
-flutter build apk --release --dart-define=SUPABASE_URL=https://PROJECT_REF.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
+flutter run --dart-define-from-file=supabase-config.json
+flutter build apk --release --dart-define-from-file=supabase-config.json
 ```
 
 Jangan masukkan `service_role` key ke aplikasi Flutter. Gunakan hanya publishable key.
+
+Di Dashboard Supabase, buka **Authentication → URL Configuration** dan tambahkan
+`com.donasitransparan.mobile://auth-callback` ke **Redirect URLs**. Buka tautan
+konfirmasi dari email di ponsel yang dipakai untuk mendaftar agar sesi dapat
+dibuat di aplikasi tersebut.
 
 ## Android
 
@@ -133,7 +128,7 @@ Manifest menyediakan permission internet, kamera, fine location, dan coarse loca
 ```bash
 dart analyze
 flutter test
-flutter build apk --debug
+adb install -r build/app/outputs/flutter-apk/app-release.apk
 ```
 
 APK release berada di:
@@ -142,4 +137,19 @@ APK release berada di:
 build/app/outputs/flutter-apk/app-release.apk
 ```
 
-Catatan: `topup` masih demo. Produksi wajib memakai payment gateway dan webhook server-side. RLS, akses Storage, dan kebijakan privasi juga perlu diaudit sebelum deployment.
+Saldo aplikasi dibatasi hingga Rp1.000.000 per akun. Donasi minimum Rp5.000 dicatat di Supabase. Pembayaran dan pencairan dana berada di luar cakupan MVP.
+
+## Katalog dan forum
+
+Katalog campaign memakai foto ilustrasi berlisensi Pexels. Forum menggabungkan percakapan terjadwal dengan nama sintetis dan kiriman pengguna dari Supabase. Catatan awal ditambahkan sekali dan dapat diubah atau dihapus.
+
+- [Paket sekolah](https://www.pexels.com/photo/28503361/)
+- [Air bersih](https://www.pexels.com/photo/9692261/)
+- [Dapur warga](https://www.pexels.com/photo/39006612/)
+- [Mangrove](https://www.pexels.com/photo/35125736/)
+- [Perpustakaan](https://www.pexels.com/photo/34085957/)
+- [Kebun pangan](https://www.pexels.com/photo/38843811/)
+- [Kursi roda](https://www.pexels.com/photo/20272758/)
+- [Kelas menjahit](https://www.pexels.com/photo/18181981/)
+- [Listrik surya](https://www.pexels.com/photo/7211069/)
+- [Ruang kelas](https://www.pexels.com/photo/36650153/)

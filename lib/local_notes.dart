@@ -56,7 +56,7 @@ class LocalNotesPage extends StatefulWidget {
 }
 
 class _LocalNotesPageState extends State<LocalNotesPage> {
-  late final LocalNotesController controller = LocalNotesController(LocalNoteRepository())..load();
+  late final LocalNotesController controller = LocalNotesController(LocalNoteRepository(includeExamples: true))..load();
 
   @override
   void dispose() {
