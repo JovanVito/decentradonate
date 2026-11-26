@@ -102,7 +102,7 @@ State UI yang tersedia:
 
 ## Setup Supabase
 
-Proyek `vvmbjtbvbxauuvgxffyo` sudah menerima migrasi aplikasi. Untuk menyiapkan proyek lain, jalankan `supabase_schema.sql`, `supabase_profile.sql`, lalu `supabase_campaign_catalog.sql` melalui SQL Editor.
+Proyek `vvmbjtbvbxauuvgxffyo` sudah menerima migrasi aplikasi. Untuk menyiapkan proyek lain, jalankan `supabase_schema.sql`, `supabase_profile.sql`, `supabase_campaign_catalog.sql`, lalu `supabase_campaign_covers.sql` melalui SQL Editor.
 
 Buat `supabase-config.json` di direktori proyek dengan `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` dari dashboard. Git mengabaikan berkas ini.
 

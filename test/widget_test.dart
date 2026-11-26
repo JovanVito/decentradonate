@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:donasi_transparan/donation_amount.dart';
+import 'package:donasi_transparan/campaign.dart';
 import 'package:donasi_transparan/local_repository.dart';
 import 'package:donasi_transparan/password_reset.dart';
 import 'package:donasi_transparan/wallet_community.dart';
@@ -188,5 +189,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Gunakan minimal 8 karakter.'), findsOneWidget);
     expect(find.text('Kedua kata sandi harus sama.'), findsOneWidget);
+  });
+
+  testWidgets('Campaign publishing form offers an optional cover photo', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: CreateCampaign()));
+    expect(find.text('Pilih foto campaign'), findsOneWidget);
+    expect(find.text('Hapus foto'), findsNothing);
   });
 }

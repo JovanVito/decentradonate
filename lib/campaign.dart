@@ -1,10 +1,67 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'main.dart';
 import 'donation_amount.dart';
+
+const _campaignCoverBucket = 'mobile-campaign-covers';
+const _maxCampaignCoverBytes = 5 * 1024 * 1024;
+
+typedef _PickedCampaignCover = ({Uint8List bytes, String mime, String extension});
+
+Future<_PickedCampaignCover?> _pickCampaignCover() async {
+  final photo = await ImagePicker().pickImage(
+    source: ImageSource.gallery,
+    maxWidth: 1600,
+    maxHeight: 1600,
+    imageQuality: 85,
+  );
+  if (photo == null) return null;
+  final extension = photo.name.toLowerCase().split('.').last;
+  final mime = switch (extension) {
+    'jpeg' || 'jpg' => 'image/jpeg',
+    'png' => 'image/png',
+    'webp' => 'image/webp',
+    _ => null,
+  };
+  if (mime == null || await photo.length() > _maxCampaignCoverBytes) {
+    throw const FormatException('Pilih foto JPG, PNG, atau WebP berukuran maksimal 5 MB.');
+  }
+  final bytes = await photo.readAsBytes();
+  if (bytes.isEmpty) throw const FormatException('Foto kosong. Pilih foto lain.');
+  return (bytes: bytes, mime: mime, extension: extension);
+}
+
+String _newCampaignCoverPath(String extension) =>
+    '${sb.auth.currentUser!.id}/${DateTime.now().microsecondsSinceEpoch}.$extension';
+
+Future<void> _removeUnattachedCampaignCover(String path) async {
+  try {
+    await sb.storage.from(_campaignCoverBucket).remove([path]);
+  } catch (_) {
+    // Cleanup can be retried without affecting a published campaign.
+  }
+}
+
+Future<List<Map<String, dynamic>>> _withCampaignCovers(List<Map<String, dynamic>> campaigns) async {
+  final paths = campaigns.map((campaign) => campaign['cover_object_path']).whereType<String>().toList();
+  if (paths.isEmpty) return campaigns;
+  try {
+    final links = await sb.storage.from(_campaignCoverBucket).createSignedUrlsResult(paths, 3600);
+    final urls = {
+      for (final link in links.whereType<SignedUrlSuccess>()) link.path: link.signedUrl,
+    };
+    return [
+      for (final campaign in campaigns)
+        {...campaign, 'cover_url': urls[campaign['cover_object_path']]},
+    ];
+  } on StorageException {
+    return campaigns;
+  }
+}
 
 class CampaignList extends StatefulWidget {
   const CampaignList({super.key, this.fundraising = false, this.onDonation});
@@ -18,7 +75,9 @@ class CampaignList extends StatefulWidget {
 class _CampaignListState extends State<CampaignList> {
   bool mineOnly = false;
   late Future<List<dynamic>> f = _load();
-  Future<List<dynamic>> _load() => sb.from('mobile_campaigns').select().order('created_at', ascending: false);
+  Future<List<dynamic>> _load() async => _withCampaignCovers(
+    await sb.from('mobile_campaigns').select().order('created_at', ascending: false),
+  );
 
   Future<void> openCampaign(String id) async {
     await Navigator.of(context).push(MaterialPageRoute<void>(
@@ -73,8 +132,11 @@ class _CampaignListState extends State<CampaignList> {
                       onTap: () => openCampaign(c['id'] as String),
                       child: Column(
                       children: [
-                        if (c['cover_photo'] case final int photo)
-                          _CampaignCover(photo: photo, height: 150),
+                        _CampaignCover(
+                          assetId: c['cover_photo'] as int?,
+                          url: c['cover_url'] as String?,
+                          height: 150,
+                        ),
                         ListTile(
                       title: Text(c['title']),
                       trailing: c['status'] == 'active' && c['owner_id'] != sb.auth.currentUser!.id
@@ -99,20 +161,33 @@ class _CampaignListState extends State<CampaignList> {
 }
 
 class _CampaignCover extends StatelessWidget {
-  const _CampaignCover({required this.photo, required this.height});
+  const _CampaignCover({this.assetId, this.url, required this.height});
 
-  final int photo;
+  final int? assetId;
+  final String? url;
   final double height;
 
   @override
-  Widget build(BuildContext context) => Image.asset(
-    'assets/campaigns/$photo.jpg',
-    height: height,
-    width: double.infinity,
-    fit: BoxFit.cover,
-    excludeFromSemantics: true,
-    errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-  );
+  Widget build(BuildContext context) {
+    final link = url;
+    final bundledPhoto = assetId;
+    final ImageProvider photo;
+    if (link != null) {
+      photo = NetworkImage(link);
+    } else if (bundledPhoto != null) {
+      photo = AssetImage('assets/campaigns/$bundledPhoto.jpg');
+    } else {
+      return const SizedBox.shrink();
+    }
+    return Image(
+      image: photo,
+      height: height,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      excludeFromSemantics: true,
+      errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+    );
+  }
 }
 
 class CreateCampaign extends StatefulWidget {
@@ -125,23 +200,89 @@ class _CreateCampaignState extends State<CreateCampaign> {
   final title = TextEditingController(), desc = TextEditingController(), target = TextEditingController();
   final rows = <List<TextEditingController>>[[TextEditingController(), TextEditingController()]];
   bool saving = false;
+  bool pickingPhoto = false;
+  Uint8List? coverBytes;
+  String? coverMime;
+  String? coverPath;
+  bool coverUploaded = false;
+
+  void removeCover() {
+    final draft = coverUploaded ? coverPath : null;
+    setState(() {
+      coverBytes = null;
+      coverMime = null;
+      coverPath = null;
+      coverUploaded = false;
+    });
+    if (draft != null) _removeUnattachedCampaignCover(draft);
+  }
+
+  Future<void> chooseCover() async {
+    if (pickingPhoto || saving) return;
+    setState(() => pickingPhoto = true);
+    try {
+      final photo = await _pickCampaignCover();
+      if (!mounted || photo == null) return;
+      final oldDraft = coverUploaded ? coverPath : null;
+      setState(() {
+        coverBytes = photo.bytes;
+        coverMime = photo.mime;
+        coverPath = _newCampaignCoverPath(photo.extension);
+        coverUploaded = false;
+      });
+      if (oldDraft != null) await _removeUnattachedCampaignCover(oldDraft);
+    } on FormatException catch (error) {
+      if (mounted) toast(context, error.message);
+    } catch (_) {
+      if (mounted) toast(context, 'Foto gagal dibuka. Pilih foto lain.');
+    } finally {
+      if (mounted) setState(() => pickingPhoto = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    title.dispose();
+    desc.dispose();
+    target.dispose();
+    for (final row in rows) {
+      for (final controller in row) {
+        controller.dispose();
+      }
+    }
+    super.dispose();
+  }
 
   Future<void> save() async {
-    if (saving) return;
+    if (saving || pickingPhoto) return;
     final t = int.tryParse(target.text) ?? 0;
     final allocs = [for (final r in rows) if (r[0].text.isNotEmpty) {'label': r[0].text, 'amount': int.tryParse(r[1].text) ?? 0}];
     final sum = allocs.fold<int>(0, (a, b) => a + (b['amount'] as int));
     if (t <= 0 || title.text.isEmpty) return toast(context, 'Judul dan target wajib diisi');
     if (sum != t) return toast(context, 'Total alokasi (${rp(sum)}) harus sama dengan target (${rp(t)})');
+    final campaignTitle = title.text.trim();
+    final description = desc.text.trim();
+    final path = coverPath;
     setState(() => saving = true);
     try {
-      await sb.rpc('mobile_create_campaign', params: {
-        'p_title': title.text.trim(),
-        'p_description': desc.text.trim(),
+      if (path != null && !coverUploaded) {
+        await sb.storage.from(_campaignCoverBucket).uploadBinary(
+          path,
+          coverBytes!,
+          fileOptions: FileOptions(contentType: coverMime),
+        );
+        coverUploaded = true;
+      }
+      await sb.rpc('mobile_publish_campaign', params: {
+        'p_title': campaignTitle,
+        'p_description': description,
         'p_target': t,
         'p_allocations': allocs,
+        'p_cover_path': path,
       });
       if (mounted) Navigator.pop(context);
+    } on StorageException {
+      if (mounted) toast(context, 'Foto gagal diunggah. Periksa koneksi atau pilih foto lain.');
     } catch (_) {
       if (mounted) toast(context, 'Campaign gagal diterbitkan. Periksa isian dan coba lagi.');
     } finally {
@@ -150,9 +291,34 @@ class _CreateCampaignState extends State<CreateCampaign> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => PopScope(
+      canPop: !saving,
+      child: Scaffold(
         appBar: AppBar(title: const Text('Buat Campaign')),
         body: ListView(padding: const EdgeInsets.all(16), children: [
+          if (coverBytes case final Uint8List bytes)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(
+                bytes, height: 170, width: double.infinity, fit: BoxFit.cover,
+                semanticLabel: 'Pratinjau foto campaign',
+              ),
+            ),
+          Wrap(
+            spacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: saving || pickingPhoto ? null : chooseCover,
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+                label: Text(coverBytes == null ? 'Pilih foto campaign' : 'Ganti foto'),
+              ),
+              if (coverBytes != null)
+                TextButton(
+                  onPressed: saving || pickingPhoto ? null : removeCover,
+                  child: const Text('Hapus foto'),
+                ),
+            ],
+          ),
           TextField(controller: title, decoration: const InputDecoration(labelText: 'Judul')),
           TextField(controller: desc, maxLines: 3, decoration: const InputDecoration(labelText: 'Deskripsi')),
           TextField(controller: target, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Target dana (Rp)')),
@@ -165,8 +331,9 @@ class _CreateCampaignState extends State<CreateCampaign> {
               Expanded(flex: 2, child: TextField(controller: r[1], keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Rp'))),
             ]),
           TextButton.icon(icon: const Icon(Icons.add), label: const Text('Tambah pos'), onPressed: () => setState(() => rows.add([TextEditingController(), TextEditingController()]))),
-          FilledButton(onPressed: saving ? null : save, child: Text(saving ? 'Menerbitkan…' : 'Terbitkan')),
+          FilledButton(onPressed: saving || pickingPhoto ? null : save, child: Text(saving ? 'Menerbitkan…' : 'Terbitkan')),
         ]),
+      ),
       );
 }
 
@@ -180,13 +347,18 @@ class CampaignDetail extends StatefulWidget {
 
 class _CampaignDetailState extends State<CampaignDetail> {
   bool donating = false;
+  bool uploadingCover = false;
   late Future<List<dynamic>> f = _load();
   Future<List<dynamic>> _load() => Future.wait([
-        sb.from('mobile_campaigns').select().eq('id', widget.id).single(),
+        _loadCampaign(),
         sb.from('mobile_allocations').select().eq('campaign_id', widget.id),
         _loadProofs(),
         sb.from('mobile_donations').select('amount, created_at, profiles:mobile_profiles(name)').eq('campaign_id', widget.id).order('created_at', ascending: false),
       ]);
+  Future<Map<String, dynamic>> _loadCampaign() async {
+    final campaign = await sb.from('mobile_campaigns').select().eq('id', widget.id).single();
+    return (await _withCampaignCovers([campaign])).single;
+  }
   Future<List<Map<String, dynamic>>> _loadProofs() async {
     final rows = await sb.from('mobile_proofs').select()
         .eq('campaign_id', widget.id).order('created_at');
@@ -199,6 +371,38 @@ class _CampaignDetailState extends State<CampaignDetail> {
 
   void reload() {
     if (mounted) setState(() => f = _load());
+  }
+
+  Future<void> changeCover() async {
+    if (uploadingCover) return;
+    setState(() => uploadingCover = true);
+    String? draft;
+    try {
+      final photo = await _pickCampaignCover();
+      if (!mounted || photo == null) return;
+      draft = _newCampaignCoverPath(photo.extension);
+      await sb.storage.from(_campaignCoverBucket).uploadBinary(
+        draft,
+        photo.bytes,
+        fileOptions: FileOptions(contentType: photo.mime),
+      );
+      final previous = await sb.rpc<String?>('mobile_replace_campaign_cover', params: {
+        'p_campaign': widget.id,
+        'p_cover_path': draft,
+      });
+      draft = null;
+      if (previous != null) await _removeUnattachedCampaignCover(previous);
+      if (!mounted) return;
+      reload();
+      toast(context, 'Foto campaign tersimpan.');
+    } on FormatException catch (error) {
+      if (mounted) toast(context, error.message);
+    } catch (_) {
+      if (draft != null) await _removeUnattachedCampaignCover(draft);
+      if (mounted) toast(context, 'Foto gagal disimpan. Periksa koneksi dan mode akun, lalu coba lagi.');
+    } finally {
+      if (mounted) setState(() => uploadingCover = false);
+    }
   }
 
   Future<void> donate() async {
@@ -286,8 +490,18 @@ class _CampaignDetailState extends State<CampaignDetail> {
             final c = s.data![0] as Map, allocs = s.data![1] as List, proofs = s.data![2] as List, dons = s.data![3] as List;
             final mine = c['owner_id'] == sb.auth.currentUser!.id, ended = c['status'] == 'ended';
             return ListView(padding: const EdgeInsets.all(16), children: [
-              if (c['cover_photo'] case final int photo)
-                _CampaignCover(photo: photo, height: 210),
+              _CampaignCover(
+                assetId: c['cover_photo'] as int?,
+                url: c['cover_url'] as String?,
+                height: 210,
+              ),
+              if (mine)
+                OutlinedButton.icon(
+                  onPressed: uploadingCover ? null : changeCover,
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  label: Text(uploadingCover ? 'Mengunggah foto…' :
+                      c['cover_object_path'] == null ? 'Unggah foto campaign' : 'Ganti foto campaign'),
+                ),
               Text(c['title'], style: Theme.of(context).textTheme.titleLarge),
               if (c['goal'] case final String goal) Text(goal, style: Theme.of(context).textTheme.titleMedium),
               Text(c['description'] ?? ''),
