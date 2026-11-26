@@ -1,5 +1,11 @@
 # Donasi Transparan
 
+## Dokumen untuk agent
+
+- [PRD.md](PRD.md): kebutuhan produk, arsitektur, acceptance criteria, pengujian, dan pekerjaan tersisa.
+- [SUPABASE_SETUP.md](SUPABASE_SETUP.md): setup project, schema, Auth, Storage, RLS, smoke test, troubleshooting, dan hardening produksi.
+- [Architecture.md](Architecture.md): struktur teknis dan vertical slice.
+
 Aplikasi Flutter untuk menghubungkan penggalang dana dan donatur melalui campaign yang transparan. Penggalang dana dapat menerbitkan campaign, menjelaskan rencana alokasi, menerima donasi, lalu mengunggah bukti penyaluran berupa foto dan koordinat GPS. Donatur dapat melihat progress campaign, alokasi dana, riwayat donasi, dan bukti penyaluran.
 
 ## Masalah yang Diselesaikan
